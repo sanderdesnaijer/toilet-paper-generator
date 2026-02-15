@@ -71,7 +71,7 @@ function renderPattern(
   pattern: PatternType,
   strength: number,
   darkness: number,
-): { def: JSX.Element | null; fill: string } {
+): { def: React.ReactNode; fill: string } {
   if (pattern === "none") {
     return { def: null, fill: "#fff" };
   }

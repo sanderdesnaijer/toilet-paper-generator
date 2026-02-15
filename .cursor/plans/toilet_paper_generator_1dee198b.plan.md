@@ -16,16 +16,16 @@ todos:
     status: completed
   - id: phase2-deps
     content: Install three, @react-three/fiber, @react-three/drei
-    status: pending
+    status: completed
   - id: phase2-roll
     content: Create `src/components/ToiletRoll.tsx` — 3D toilet roll with decreasing radius as paper unrolls
-    status: pending
+    status: completed
   - id: phase2-physics
     content: Create `src/hooks/useRollPhysics.ts` — drag interaction with momentum, friction, and direction
-    status: pending
+    status: completed
   - id: phase2-page
-    content: Update `src/app/page.tsx` to use 3D roll as the main input, keep print button and settings
-    status: pending
+    content: Create `src/app/roll/page.tsx` as new route with 3D roll input, keeping original page at `/`
+    status: completed
 isProject: false
 ---
 

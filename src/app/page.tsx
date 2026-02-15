@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
 import {
   printToiletPaper,
@@ -56,6 +57,25 @@ export default function Home() {
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                 Print blank sheets to your thermal printer
               </p>
+              <Link
+                href="/roll"
+                className="mt-2 inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-900 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+              >
+                Try 3D Roll Mode
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </Link>
             </div>
             <button
               onClick={() => setShowSettings(!showSettings)}
