@@ -89,7 +89,12 @@ function renderPattern(
           height={spacing}
           patternUnits="userSpaceOnUse"
         >
-          <circle cx={spacing / 2} cy={spacing / 2} r={r} fill={`rgba(0,0,0,${alpha})`} />
+          <circle
+            cx={spacing / 2}
+            cy={spacing / 2}
+            r={r}
+            fill={`rgba(0,0,0,${alpha})`}
+          />
         </pattern>
       ),
       fill: "url(#preview-pattern)",
@@ -107,7 +112,11 @@ function renderPattern(
           height={period}
           patternUnits="userSpaceOnUse"
         >
-          <rect width={period} height={thickness} fill={`rgba(0,0,0,${alpha})`} />
+          <rect
+            width={period}
+            height={thickness}
+            fill={`rgba(0,0,0,${alpha})`}
+          />
         </pattern>
       ),
       fill: "url(#preview-pattern)",
@@ -125,8 +134,16 @@ function renderPattern(
           height={period}
           patternUnits="userSpaceOnUse"
         >
-          <rect width={period} height={thickness} fill={`rgba(0,0,0,${alpha})`} />
-          <rect width={thickness} height={period} fill={`rgba(0,0,0,${alpha})`} />
+          <rect
+            width={period}
+            height={thickness}
+            fill={`rgba(0,0,0,${alpha})`}
+          />
+          <rect
+            width={thickness}
+            height={period}
+            fill={`rgba(0,0,0,${alpha})`}
+          />
         </pattern>
       ),
       fill: "url(#preview-pattern)",
@@ -191,13 +208,18 @@ export function PrintPreview({
   const message = getPreviewMessage(messageType, safeAmount);
   const messageLines = wrapMessage(message, 22);
 
-  const fontSize = messageLines.length <= 2 ? 20 : messageLines.length === 3 ? 16 : 14;
+  const fontSize =
+    messageLines.length <= 2 ? 20 : messageLines.length === 3 ? 16 : 14;
   const lineHeight = fontSize + 6;
   const textBlockHeight =
     messageLines.length > 0 ? messageLines.length * lineHeight - 6 : 0;
   const firstLineY = (previewHeight - textBlockHeight) / 2 + fontSize * 0.8;
 
-  const patternRender = renderPattern(pattern, patternStrength, patternDarkness);
+  const patternRender = renderPattern(
+    pattern,
+    patternStrength,
+    patternDarkness,
+  );
 
   return (
     <aside className="w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900 lg:w-[22rem]">
@@ -216,7 +238,13 @@ export function PrintPreview({
           aria-label="Toilet paper print preview"
         >
           <defs>{patternRender.def}</defs>
-          <rect x="0" y="0" width="288" height={previewHeight} fill={patternRender.fill} />
+          <rect
+            x="0"
+            y="0"
+            width="288"
+            height={previewHeight}
+            fill={patternRender.fill}
+          />
           {messageLines.length > 0 && (
             <text
               x="144"
@@ -228,7 +256,11 @@ export function PrintPreview({
               fontFamily="ui-sans-serif, system-ui, sans-serif"
             >
               {messageLines.map((line, index) => (
-                <tspan key={`${line}-${index}`} x="144" dy={index === 0 ? 0 : lineHeight}>
+                <tspan
+                  key={`${line}-${index}`}
+                  x="144"
+                  dy={index === 0 ? 0 : lineHeight}
+                >
                   {line}
                 </tspan>
               ))}

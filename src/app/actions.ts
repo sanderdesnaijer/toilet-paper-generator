@@ -245,7 +245,10 @@ function wrapWords(message: string, maxCharsPerLine: number): string[] {
   return lines;
 }
 
-function layoutCenteredText(message: string, totalRows: number): TextLayout | null {
+function layoutCenteredText(
+  message: string,
+  totalRows: number,
+): TextLayout | null {
   const normalized = message.toUpperCase().replace(/\s+/g, " ").trim();
   if (!normalized) {
     return null;
