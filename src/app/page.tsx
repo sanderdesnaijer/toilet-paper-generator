@@ -2,12 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
-import { printToiletPaper } from "./actions";
+import { printToiletPaper, type MessageType, type PatternType } from "./actions";
+import { PrintPreview } from "@/components/PrintPreview";
 
 export default function Home() {
   const { settings, updateSettings } = useSettings();
-  const [lengthCm, setLengthCm] = useState(20);
-  const [amount, setAmount] = useState(1);
+  const [lengthCm, setLengthCm] = useState("5");
+  const [amount, setAmount] = useState("1");
+  const [pattern, setPattern] = useState<PatternType>("none");
+  const [messageType, setMessageType] = useState<MessageType>("none");
+  const [patternStrength, setPatternStrength] = useState(50);
+  const [patternDarkness, setPatternDarkness] = useState(100);
   const [showSettings, setShowSettings] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
   const [result, setResult] = useState<{
@@ -15,17 +20,29 @@ export default function Home() {
     message: string;
   } | null>(null);
 
+  const parsedLength = parseFloat(lengthCm);
+  const parsedAmount = parseInt(amount, 10);
+
   function handlePrint() {
     setResult(null);
     startPrinting(async () => {
-      const res = await printToiletPaper(lengthCm, amount, settings);
+      const res = await printToiletPaper(
+        parsedLength,
+        parsedAmount,
+        settings,
+        pattern,
+        patternStrength,
+        patternDarkness,
+        messageType,
+      );
       setResult(res);
     });
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-950">
-      <main className="flex w-full max-w-md flex-col gap-8 rounded-2xl bg-white p-8 shadow-lg dark:bg-zinc-900">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 font-sans dark:bg-zinc-950">
+      <div className="flex w-full max-w-6xl flex-col gap-6 lg:flex-row lg:items-start lg:justify-center">
+        <main className="flex w-full max-w-md flex-col gap-8 rounded-2xl bg-white p-8 shadow-lg dark:bg-zinc-900">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -116,11 +133,11 @@ export default function Home() {
             </label>
             <input
               id="length"
-              type="number"
-              min={1}
-              max={500}
+              type="text"
+              inputMode="decimal"
               value={lengthCm}
-              onChange={(e) => setLengthCm(Number(e.target.value))}
+              onChange={(e) => setLengthCm(e.target.value)}
+              placeholder="5"
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             />
             <p className="mt-1 text-xs text-zinc-400">
@@ -137,15 +154,108 @@ export default function Home() {
             </label>
             <input
               id="amount"
-              type="number"
-              min={1}
-              max={100}
+              type="text"
+              inputMode="numeric"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="1"
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             />
             <p className="mt-1 text-xs text-zinc-400">
               Number of sheets to print (max 100)
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="pattern"
+              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              Pattern
+            </label>
+            <select
+              id="pattern"
+              value={pattern}
+              onChange={(e) => setPattern(e.target.value as PatternType)}
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+            >
+              <option value="none">None (blank)</option>
+              <option value="dots">Dots</option>
+              <option value="stripes">Stripes</option>
+              <option value="grid">Grid</option>
+              <option value="checkerboard">Checkerboard</option>
+              <option value="diamonds">Diamonds</option>
+            </select>
+          </div>
+
+          {pattern !== "none" && (
+            <>
+              <div>
+                <label
+                  htmlFor="strength"
+                  className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  <span>Density</span>
+                  <span className="text-xs font-normal text-zinc-400">
+                    {patternStrength}%
+                  </span>
+                </label>
+                <input
+                  id="strength"
+                  type="range"
+                  min={1}
+                  max={100}
+                  value={patternStrength}
+                  onChange={(e) => setPatternStrength(Number(e.target.value))}
+                  className="w-full accent-zinc-900 dark:accent-zinc-100"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="darkness"
+                  className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  <span>Darkness</span>
+                  <span className="text-xs font-normal text-zinc-400">
+                    {patternDarkness}%
+                  </span>
+                </label>
+                <input
+                  id="darkness"
+                  type="range"
+                  min={1}
+                  max={100}
+                  value={patternDarkness}
+                  onChange={(e) => setPatternDarkness(Number(e.target.value))}
+                  className="w-full accent-zinc-900 dark:accent-zinc-100"
+                />
+              </div>
+            </>
+          )}
+
+          <div>
+            <label
+              htmlFor="messageType"
+              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              Message
+            </label>
+            <select
+              id="messageType"
+              value={messageType}
+              onChange={(e) => setMessageType(e.target.value as MessageType)}
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+            >
+              <option value="none">None</option>
+              <option value="wipe-counter">
+                Counter: x wipes already! x wipes away from finish.
+              </option>
+              <option value="inspirational-quote">
+                Random inspirational quote
+              </option>
+            </select>
+            <p className="mt-1 text-xs text-zinc-400">
+              Printed centered in full black, combined with your pattern.
             </p>
           </div>
         </div>
@@ -153,7 +263,7 @@ export default function Home() {
         {/* Print Button */}
         <button
           onClick={handlePrint}
-          disabled={isPrinting || lengthCm <= 0 || amount <= 0}
+          disabled={isPrinting || !(parsedLength > 0) || !(parsedAmount > 0)}
           className="w-full rounded-xl bg-zinc-900 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
           {isPrinting ? (
@@ -180,7 +290,7 @@ export default function Home() {
               Printing...
             </span>
           ) : (
-            `Print ${amount} sheet${amount !== 1 ? "s" : ""}`
+            `Print ${parsedAmount || 0} sheet${parsedAmount !== 1 ? "s" : ""}`
           )}
         </button>
 
@@ -196,7 +306,17 @@ export default function Home() {
             {result.message}
           </div>
         )}
-      </main>
+        </main>
+
+        <PrintPreview
+          lengthCm={parsedLength}
+          amount={parsedAmount}
+          pattern={pattern}
+          patternStrength={patternStrength}
+          patternDarkness={patternDarkness}
+          messageType={messageType}
+        />
+      </div>
     </div>
   );
 }

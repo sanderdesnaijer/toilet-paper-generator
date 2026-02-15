@@ -6,6 +6,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   type ReactNode,
 } from "react";
 
@@ -26,39 +27,38 @@ const DEFAULT_SETTINGS: PrinterSettings = {
   printerPort: "9100",
 };
 
+function loadSettings(): PrinterSettings {
+  if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<PrinterSettings>;
+      return { ...DEFAULT_SETTINGS, ...parsed };
+    }
+  } catch {
+    // Ignore parse errors, use defaults
+  }
+  return DEFAULT_SETTINGS;
+}
+
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<PrinterSettings>(DEFAULT_SETTINGS);
-  const [loaded, setLoaded] = useState(false);
+  const [settings, setSettings] = useState<PrinterSettings>(loadSettings);
+  const isInitialRender = useRef(true);
 
-  // Load from localStorage on mount
+  // Persist to localStorage on change (skip the initial render)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as Partial<PrinterSettings>;
-        setSettings((prev) => ({ ...prev, ...parsed }));
-      }
-    } catch {
-      // Ignore parse errors, use defaults
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
     }
-    setLoaded(true);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  }, [settings]);
+
+  const updateSettings = useCallback((partial: Partial<PrinterSettings>) => {
+    setSettings((prev) => ({ ...prev, ...partial }));
   }, []);
-
-  // Persist to localStorage on change
-  useEffect(() => {
-    if (loaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    }
-  }, [settings, loaded]);
-
-  const updateSettings = useCallback(
-    (partial: Partial<PrinterSettings>) => {
-      setSettings((prev) => ({ ...prev, ...partial }));
-    },
-    []
-  );
 
   return (
     <SettingsContext.Provider value={{ settings, updateSettings }}>
