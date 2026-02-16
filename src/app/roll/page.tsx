@@ -24,8 +24,12 @@ export default function RollPage() {
   const [sheetCount, setSheetCount] = useState(0);
   const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(DEFAULT_PATTERN_STRENGTH);
-  const [patternDarkness, setPatternDarkness] = useState(DEFAULT_PATTERN_DARKNESS);
+  const [patternStrength, setPatternStrength] = useState(
+    DEFAULT_PATTERN_STRENGTH,
+  );
+  const [patternDarkness, setPatternDarkness] = useState(
+    DEFAULT_PATTERN_DARKNESS,
+  );
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
@@ -35,7 +39,8 @@ export default function RollPage() {
   } | null>(null);
 
   const maxLengthCm = parseFloat(settings.rollLength) || MAX_LENGTH_CM;
-  const paperLengthCm = parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
+  const paperLengthCm =
+    parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
 
   const handleRollLengthChange = useCallback((newLength: number) => {
     setLengthCm(newLength);

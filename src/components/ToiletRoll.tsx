@@ -135,8 +135,7 @@ function createPatternTexture(
         ctx.fillRect(x, 0, thickness, TEXTURE_SIZE);
       }
     } else if (pattern === "checkerboard") {
-      const size =
-        clamp(Math.round(16 - (strength * 12) / 100), 4, 16) * scale;
+      const size = clamp(Math.round(16 - (strength * 12) / 100), 4, 16) * scale;
       for (let x = 0; x < TEXTURE_SIZE; x += size * 2) {
         for (let y = 0; y < TEXTURE_SIZE; y += size * 2) {
           ctx.fillRect(x, y, size, size);
@@ -144,8 +143,7 @@ function createPatternTexture(
         }
       }
     } else if (pattern === "diamonds") {
-      const size =
-        clamp(Math.round(24 - (strength * 18) / 100), 8, 24) * scale;
+      const size = clamp(Math.round(24 - (strength * 18) / 100), 8, 24) * scale;
       const half = size / 2;
       for (let x = 0; x < TEXTURE_SIZE; x += size) {
         for (let y = 0; y < TEXTURE_SIZE; y += size) {

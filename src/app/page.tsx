@@ -23,8 +23,12 @@ export default function Home() {
   const [amount, setAmount] = useState("1");
   const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(DEFAULT_PATTERN_STRENGTH);
-  const [patternDarkness, setPatternDarkness] = useState(DEFAULT_PATTERN_DARKNESS);
+  const [patternStrength, setPatternStrength] = useState(
+    DEFAULT_PATTERN_STRENGTH,
+  );
+  const [patternDarkness, setPatternDarkness] = useState(
+    DEFAULT_PATTERN_DARKNESS,
+  );
   const [showSettings, setShowSettings] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
   const [result, setResult] = useState<{
@@ -33,7 +37,8 @@ export default function Home() {
   } | null>(null);
 
   const maxLengthCm = parseFloat(settings.rollLength) || MAX_LENGTH_CM;
-  const paperLengthCm = parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
+  const paperLengthCm =
+    parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
   const parsedAmount = parseInt(amount, 10);
 
   function handlePrint() {
