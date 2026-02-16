@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MAX_LENGTH_CM } from "@/constants";
+import { MAX_LENGTH_CM, MIN_LENGTH_CM } from "@/constants";
 import {
   printToiletPaper,
   type MessageType,
@@ -13,7 +13,7 @@ import { PrintPreview } from "@/components/PrintPreview";
 
 export default function Home() {
   const { settings, updateSettings } = useSettings();
-  const [lengthCm, setLengthCm] = useState("5");
+  const [lengthCm, setLengthCm] = useState("100");
   const [amount, setAmount] = useState("1");
   const [pattern, setPattern] = useState<PatternType>("none");
   const [messageType, setMessageType] = useState<MessageType>("none");
