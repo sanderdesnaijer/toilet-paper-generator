@@ -9,6 +9,7 @@ import {
   type PatternType,
 } from "../actions";
 import { ToiletRoll } from "@/components/ToiletRoll";
+import { MAX_LENGTH_CM } from "@/constants";
 
 export default function RollPage() {
   const { settings, updateSettings } = useSettings();
@@ -166,7 +167,7 @@ export default function RollPage() {
           <ToiletRoll
             onLengthChange={handleRollLengthChange}
             externalLength={externalLength}
-            maxLengthCm={500}
+            maxLengthCm={MAX_LENGTH_CM}
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}

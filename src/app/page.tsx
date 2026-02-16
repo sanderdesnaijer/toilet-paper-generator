@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
+import { MAX_LENGTH_CM } from "@/constants";
 import {
   printToiletPaper,
   type MessageType,
@@ -165,7 +166,7 @@ export default function Home() {
                 className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
               <p className="mt-1 text-xs text-zinc-400">
-                1 &ndash; 500 cm per sheet
+                {`${MIN_LENGTH_CM} &ndash; ${MAX_LENGTH_CM} cm per sheet`}
               </p>
             </div>
 

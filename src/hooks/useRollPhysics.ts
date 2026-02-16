@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect } from "react";
+import { MAX_LENGTH_CM } from "@/constants";
 
 export type RollPhysicsState = {
   /** Current angular velocity in radians/second */
@@ -27,7 +28,7 @@ type RollPhysicsConfig = {
 };
 
 const DEFAULT_CONFIG: RollPhysicsConfig = {
-  maxLengthCm: 500,
+  maxLengthCm: MAX_LENGTH_CM,
   friction: 0.92,
   sensitivity: 0.008,
   paperThicknessCm: 0.01,

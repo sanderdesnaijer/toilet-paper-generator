@@ -10,6 +10,7 @@ import {
   type RollPhysicsState,
   type RollPhysicsConfig,
 } from "@/hooks/useRollPhysics";
+import { MAX_LENGTH_CM } from "@/constants";
 
 // ───────────────────────────── Types ─────────────────────────────
 
@@ -26,7 +27,7 @@ type PatternType =
 const CORE_RADIUS = 2.0;
 const OUTER_RADIUS = 5.5;
 const ROLL_WIDTH = 4.0;
-const MAX_LENGTH_CM = 500;
+// MAX_LENGTH_CM is imported from @/constants
 const PAPER_COLOR = "#f5f0e8";
 const CORE_COLOR = "#8b7355";
 const TEXTURE_SIZE = 512;

@@ -1,6 +1,7 @@
 "use server";
 
 import * as net from "net";
+import { MAX_LENGTH_CM } from "../constants";
 
 export type PrinterSettings = {
   printerIp: string;
@@ -513,10 +514,10 @@ export async function printToiletPaper(
       return { success: false, message: "Length and amount must be positive." };
     }
 
-    if (lengthCm > 500) {
+    if (lengthCm > MAX_LENGTH_CM) {
       return {
         success: false,
-        message: "Maximum length is 500 cm per sheet.",
+        message: `Maximum length is ${MAX_LENGTH_CM} cm per sheet.`,
       };
     }
 
