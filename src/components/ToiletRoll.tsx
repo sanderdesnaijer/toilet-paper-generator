@@ -559,7 +559,6 @@ function Floor() {
 
 // ───────────────────────────── Scene ──────────────────────────────
 
-const _quat = new THREE.Quaternion();
 const _exitDir = new THREE.Vector3();
 const _exitCenter = new THREE.Vector3();
 const _exitLeft = new THREE.Vector3();
@@ -643,16 +642,19 @@ function Scene({
     const rollRotation = body.rotation();
 
     _rollPos.set(rollTranslation.x, rollTranslation.y, rollTranslation.z);
-    _quat.set(rollRotation.x, rollRotation.y, rollRotation.z, rollRotation.w);
 
-    // Exit direction: local -Z rotated by roll quaternion (paper comes off the back)
-    _exitDir.set(0, -1, 0).applyQuaternion(_quat);
+    // Extract the clean rotation angle around the X axis from the quaternion.
+    // This ignores any tiny Y/Z perturbations from the physics solver that
+    // caused the exit point to jitter left-to-right when applying the full
+    // quaternion.
+    const exitAngle = 2 * Math.atan2(rollRotation.x, rollRotation.w);
+    _exitDir.set(0, -Math.cos(exitAngle), -Math.sin(exitAngle));
     _exitCenter.copy(_exitDir).multiplyScalar(currentRadius).add(_rollPos);
 
-    // Left and right edges of the paper at the exit point
-    // Roll axis is local X, so left = -X, right = +X
+    // Roll axis is always world-X (body only rotates around X), so the
+    // left/right span direction is constant.
     const halfW = ROLL_WIDTH / 2;
-    _rightDir.set(1, 0, 0).applyQuaternion(_quat);
+    _rightDir.set(1, 0, 0);
     _exitLeft.copy(_exitCenter).addScaledVector(_rightDir, -halfW);
     _exitRight.copy(_exitCenter).addScaledVector(_rightDir, halfW);
 
