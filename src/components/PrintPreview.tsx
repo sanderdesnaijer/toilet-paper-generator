@@ -1,14 +1,6 @@
 "use client";
 
-type PatternType =
-  | "none"
-  | "dots"
-  | "stripes"
-  | "grid"
-  | "checkerboard"
-  | "diamonds";
-
-type MessageType = "none" | "wipe-counter" | "inspirational-quote";
+import { type PatternType, type MessageType } from "@/constants";
 
 type PrintPreviewProps = {
   lengthCm: number;

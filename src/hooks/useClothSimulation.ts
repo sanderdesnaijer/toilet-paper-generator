@@ -24,6 +24,7 @@ import {
   CLOTH_CONSTRAINT_ITERS,
   CLOTH_SUB_STEPS,
   ROLL_WIDTH,
+  FLOOR_Y,
 } from "@/constants";
 
 // ─── Types ──────────────────────────────────────────────────────────
@@ -62,7 +63,7 @@ const DEFAULT_CONFIG: ClothConfig = {
   constraintIterations: CLOTH_CONSTRAINT_ITERS,
   subSteps: CLOTH_SUB_STEPS,
   paperWidth: ROLL_WIDTH,
-  floorY: -3.5,
+  floorY: FLOOR_Y,
 };
 
 // ─── Simulation class ───────────────────────────────────────────────

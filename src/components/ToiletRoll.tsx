@@ -14,22 +14,19 @@ import type { RapierRigidBody } from "@react-three/rapier";
 import {
   MAX_LENGTH_CM,
   DEFAULT_PAPER_LENGTH_CM,
+  DEFAULT_PATTERN_STRENGTH,
+  DEFAULT_PATTERN_DARKNESS,
   CORE_RADIUS,
   OUTER_RADIUS,
   ROLL_WIDTH,
   CLOTH_MAX_ACTIVE_ROWS,
+  PAPER_COLOR,
+  CORE_COLOR,
+  FLOOR_Y,
+  type PatternType,
+  type MessageType,
 } from "@/constants";
 import { ClothSimulation } from "@/hooks/useClothSimulation";
-
-// ───────────────────────────── Types ─────────────────────────────
-
-type PatternType =
-  | "none"
-  | "dots"
-  | "stripes"
-  | "grid"
-  | "checkerboard"
-  | "diamonds";
 
 type RollPhysicsState = {
   angularVelocity: number;
@@ -40,10 +37,38 @@ type RollPhysicsState = {
 
 // ───────────────────────────── Constants ─────────────────────────────
 
-const PAPER_COLOR = "#f5f0e8";
-const CORE_COLOR = "#8b7355";
 const TEXTURE_SIZE = 512;
-const FLOOR_SURFACE_Y = -3.5 + 0.08;
+const FLOOR_SURFACE_Y = FLOOR_Y + 0.08;
+
+// ───────────────── Message Helper ─────────────────────────────────
+
+function getPreviewMessage(messageType: MessageType): string {
+  if (messageType === "none") return "";
+  if (messageType === "wipe-counter") {
+    return "1 WIPES ALREADY! 4 WIPES AWAY FROM FINISH.";
+  }
+  return "YOU ARE DOING GREAT.";
+}
+
+function wrapMessageText(message: string, maxCharsPerLine: number): string[] {
+  const words = message.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxCharsPerLine) {
+      current = next;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
 
 // ───────────────── Pattern Texture Generator ─────────────────────────
 
@@ -55,8 +80,13 @@ function createPatternTexture(
   pattern: PatternType,
   strength: number,
   darkness: number,
+  messageType: MessageType = "none",
+  textRotationDeg: number = 0,
 ): THREE.CanvasTexture | null {
-  if (pattern === "none") return null;
+  const message = getPreviewMessage(messageType);
+  const hasMessage = message.length > 0;
+
+  if (pattern === "none" && !hasMessage) return null;
 
   const canvas = document.createElement("canvas");
   canvas.width = TEXTURE_SIZE;
@@ -67,60 +97,95 @@ function createPatternTexture(
   ctx.fillStyle = PAPER_COLOR;
   ctx.fillRect(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
 
-  const alpha = clamp(darkness / 100, 0.05, 1);
-  ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-  ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
+  if (pattern !== "none") {
+    const alpha = clamp(darkness / 100, 0.05, 1);
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+    ctx.strokeStyle = `rgba(0, 0, 0, ${alpha})`;
 
-  const scale = TEXTURE_SIZE / 288;
+    const scale = TEXTURE_SIZE / 288;
 
-  if (pattern === "dots") {
-    const spacing =
-      clamp(Math.round(20 - (strength * 16) / 100), 4, 20) * scale;
-    const r = clamp(Math.round(1 + (strength * 2) / 100), 1, 3) * scale;
-    for (let x = spacing / 2; x < TEXTURE_SIZE; x += spacing) {
-      for (let y = spacing / 2; y < TEXTURE_SIZE; y += spacing) {
-        ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fill();
+    if (pattern === "dots") {
+      const spacing =
+        clamp(Math.round(20 - (strength * 16) / 100), 4, 20) * scale;
+      const r = clamp(Math.round(1 + (strength * 2) / 100), 1, 3) * scale;
+      for (let x = spacing / 2; x < TEXTURE_SIZE; x += spacing) {
+        for (let y = spacing / 2; y < TEXTURE_SIZE; y += spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === "stripes") {
+      const period =
+        clamp(Math.round(18 - (strength * 14) / 100), 4, 18) * scale;
+      const thickness =
+        clamp(Math.round(1 + (strength * 2) / 100), 1, 4) * scale;
+      for (let y = 0; y < TEXTURE_SIZE; y += period) {
+        ctx.fillRect(0, y, TEXTURE_SIZE, thickness);
+      }
+    } else if (pattern === "grid") {
+      const period =
+        clamp(Math.round(18 - (strength * 14) / 100), 4, 18) * scale;
+      const thickness =
+        clamp(Math.round(1 + (strength * 2) / 100), 1, 4) * scale;
+      for (let y = 0; y < TEXTURE_SIZE; y += period) {
+        ctx.fillRect(0, y, TEXTURE_SIZE, thickness);
+      }
+      for (let x = 0; x < TEXTURE_SIZE; x += period) {
+        ctx.fillRect(x, 0, thickness, TEXTURE_SIZE);
+      }
+    } else if (pattern === "checkerboard") {
+      const size =
+        clamp(Math.round(16 - (strength * 12) / 100), 4, 16) * scale;
+      for (let x = 0; x < TEXTURE_SIZE; x += size * 2) {
+        for (let y = 0; y < TEXTURE_SIZE; y += size * 2) {
+          ctx.fillRect(x, y, size, size);
+          ctx.fillRect(x + size, y + size, size, size);
+        }
+      }
+    } else if (pattern === "diamonds") {
+      const size =
+        clamp(Math.round(24 - (strength * 18) / 100), 8, 24) * scale;
+      const half = size / 2;
+      for (let x = 0; x < TEXTURE_SIZE; x += size) {
+        for (let y = 0; y < TEXTURE_SIZE; y += size) {
+          ctx.beginPath();
+          ctx.moveTo(x + half, y);
+          ctx.lineTo(x + size, y + half);
+          ctx.lineTo(x + half, y + size);
+          ctx.lineTo(x, y + half);
+          ctx.closePath();
+          ctx.fill();
+        }
       }
     }
-  } else if (pattern === "stripes") {
-    const period = clamp(Math.round(18 - (strength * 14) / 100), 4, 18) * scale;
-    const thickness = clamp(Math.round(1 + (strength * 2) / 100), 1, 4) * scale;
-    for (let y = 0; y < TEXTURE_SIZE; y += period) {
-      ctx.fillRect(0, y, TEXTURE_SIZE, thickness);
+  }
+
+  if (hasMessage) {
+    const lines = wrapMessageText(message, 18);
+    const fontSize =
+      lines.length <= 2
+        ? Math.round(TEXTURE_SIZE / 12)
+        : lines.length === 3
+          ? Math.round(TEXTURE_SIZE / 16)
+          : Math.round(TEXTURE_SIZE / 20);
+    const lineHeight = fontSize * 1.3;
+    const textBlockHeight = lines.length * lineHeight;
+    const startY = -textBlockHeight / 2 + fontSize * 0.85;
+
+    ctx.save();
+    ctx.translate(TEXTURE_SIZE / 2, TEXTURE_SIZE / 2);
+    ctx.rotate((textRotationDeg * Math.PI) / 180);
+
+    ctx.fillStyle = "#000000";
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], 0, startY + i * lineHeight);
     }
-  } else if (pattern === "grid") {
-    const period = clamp(Math.round(18 - (strength * 14) / 100), 4, 18) * scale;
-    const thickness = clamp(Math.round(1 + (strength * 2) / 100), 1, 4) * scale;
-    for (let y = 0; y < TEXTURE_SIZE; y += period) {
-      ctx.fillRect(0, y, TEXTURE_SIZE, thickness);
-    }
-    for (let x = 0; x < TEXTURE_SIZE; x += period) {
-      ctx.fillRect(x, 0, thickness, TEXTURE_SIZE);
-    }
-  } else if (pattern === "checkerboard") {
-    const size = clamp(Math.round(16 - (strength * 12) / 100), 4, 16) * scale;
-    for (let x = 0; x < TEXTURE_SIZE; x += size * 2) {
-      for (let y = 0; y < TEXTURE_SIZE; y += size * 2) {
-        ctx.fillRect(x, y, size, size);
-        ctx.fillRect(x + size, y + size, size, size);
-      }
-    }
-  } else if (pattern === "diamonds") {
-    const size = clamp(Math.round(24 - (strength * 18) / 100), 8, 24) * scale;
-    const half = size / 2;
-    for (let x = 0; x < TEXTURE_SIZE; x += size) {
-      for (let y = 0; y < TEXTURE_SIZE; y += size) {
-        ctx.beginPath();
-        ctx.moveTo(x + half, y);
-        ctx.lineTo(x + size, y + half);
-        ctx.lineTo(x + half, y + size);
-        ctx.lineTo(x, y + half);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
+    ctx.restore();
   }
 
   const texture = new THREE.CanvasTexture(canvas);
@@ -152,18 +217,27 @@ function ClothPaperMesh({
   pattern,
   patternStrength,
   patternDarkness,
+  messageType = "none",
 }: {
   clothRef: React.RefObject<ClothSimulation>;
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
+  messageType?: MessageType;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
 
   const texture = useMemo(
-    () => createPatternTexture(pattern, patternStrength, patternDarkness),
-    [pattern, patternStrength, patternDarkness],
+    () =>
+      createPatternTexture(
+        pattern,
+        patternStrength,
+        patternDarkness,
+        messageType,
+        180,
+      ),
+    [pattern, patternStrength, patternDarkness, messageType],
   );
 
   useEffect(() => {
@@ -278,6 +352,7 @@ function Roll3D({
   pattern,
   patternStrength,
   patternDarkness,
+  messageType = "none",
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
   maxLengthCm: number;
@@ -285,6 +360,7 @@ function Roll3D({
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
+  messageType?: MessageType;
 }) {
   const shellMeshRef = useRef<THREE.Mesh>(null);
   const shellMatRef = useRef<THREE.MeshStandardMaterial>(null);
@@ -293,8 +369,15 @@ function Roll3D({
   const lastRadiusRef = useRef<number>(-1);
 
   const rollTexture = useMemo(
-    () => createPatternTexture(pattern, patternStrength, patternDarkness),
-    [pattern, patternStrength, patternDarkness],
+    () =>
+      createPatternTexture(
+        pattern,
+        patternStrength,
+        patternDarkness,
+        messageType,
+        -90,
+      ),
+    [pattern, patternStrength, patternDarkness, messageType],
   );
 
   useEffect(() => {
@@ -586,8 +669,9 @@ function Scene({
   maxLengthCm,
   onUpdate,
   pattern = "dots",
-  patternStrength = 29,
-  patternDarkness = 100,
+  patternStrength = DEFAULT_PATTERN_STRENGTH,
+  patternDarkness = DEFAULT_PATTERN_DARKNESS,
+  messageType = "none",
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
   cameraRef: React.RefObject<CameraState>;
@@ -603,6 +687,7 @@ function Scene({
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
+  messageType?: MessageType;
 }) {
   const radiusRef = useRef(OUTER_RADIUS);
   const clothRef = useRef(new ClothSimulation({ floorY: FLOOR_SURFACE_Y }));
@@ -740,6 +825,7 @@ function Scene({
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
+            messageType={messageType}
           />
         </RigidBody>
       </Physics>
@@ -750,6 +836,7 @@ function Scene({
         pattern={pattern}
         patternStrength={patternStrength}
         patternDarkness={patternDarkness}
+        messageType={messageType}
       />
 
       <CameraController cameraRef={cameraRef} />
@@ -769,6 +856,7 @@ type ToiletRollProps = {
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
+  messageType?: MessageType;
   className?: string;
 };
 
@@ -779,8 +867,9 @@ export function ToiletRoll({
   maxLengthCm = MAX_LENGTH_CM,
   paperLengthCm = DEFAULT_PAPER_LENGTH_CM,
   pattern = "dots",
-  patternStrength = 29,
-  patternDarkness = 100,
+  patternStrength = DEFAULT_PATTERN_STRENGTH,
+  patternDarkness = DEFAULT_PATTERN_DARKNESS,
+  messageType = "none",
   className,
 }: ToiletRollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -941,6 +1030,7 @@ export function ToiletRoll({
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
+            messageType={messageType}
           />
         </Canvas>
 

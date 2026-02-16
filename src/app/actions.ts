@@ -1,32 +1,26 @@
 "use server";
 
 import * as net from "net";
-import { MAX_LENGTH_CM } from "../constants";
+import {
+  MAX_LENGTH_CM,
+  PRINT_WIDTH_DOTS,
+  PRINT_WIDTH_BYTES,
+  DOTS_PER_CM,
+  CHUNK_HEIGHT,
+  type PatternType,
+  type MessageType,
+} from "../constants";
+
+export type { PatternType, MessageType };
 
 export type PrinterSettings = {
   printerIp: string;
   printerPort: string;
 };
 
-export type PatternType =
-  | "none"
-  | "dots"
-  | "stripes"
-  | "grid"
-  | "checkerboard"
-  | "diamonds";
-
-export type MessageType = "none" | "wipe-counter" | "inspirational-quote";
-
 // ESC/POS commands
 const ESC_INIT = Buffer.from([0x1b, 0x40]); // Initialize printer
 const CUT_PAPER = Buffer.from([0x1d, 0x56, 0x42, 0x00]); // Full cut
-
-// Raster image constants
-const PRINT_WIDTH_DOTS = 576; // 80mm paper at 203 DPI
-const PRINT_WIDTH_BYTES = PRINT_WIDTH_DOTS / 8; // 72 bytes per row
-const RASTER_DOTS_PER_CM = 142; // Matches calibrated feed resolution (360 DPI)
-const CHUNK_HEIGHT = 256; // max rows per raster command
 
 // 4×4 ordered dithering matrix for darkness control (values 0–15)
 const BAYER_4x4 = [
@@ -122,7 +116,6 @@ type TextLayout = {
  * Calibrated at 360 DPI feed resolution: 1 cm ≈ 142 dots.
  */
 function buildFeedCommands(lengthCm: number): Buffer {
-  const DOTS_PER_CM = 142; // 360 DPI / 2.54 cm ≈ 142 (calibrated)
   const totalDots = Math.round(lengthCm * DOTS_PER_CM);
 
   const fullSteps = Math.floor(totalDots / 255);
@@ -425,7 +418,7 @@ function buildPatternCommands(
   lengthCm: number,
   message: string | null,
 ): Buffer {
-  const totalRows = Math.round(lengthCm * RASTER_DOTS_PER_CM);
+  const totalRows = Math.round(lengthCm * DOTS_PER_CM);
   const buffers: Buffer[] = [];
   const textLayout = message ? layoutCenteredText(message, totalRows) : null;
 

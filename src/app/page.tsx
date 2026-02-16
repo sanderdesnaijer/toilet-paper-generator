@@ -3,20 +3,28 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
-import {
-  printToiletPaper,
-  type MessageType,
-  type PatternType,
-} from "./actions";
+import { printToiletPaper } from "./actions";
 import { PrintPreview } from "@/components/PrintPreview";
+import {
+  type PatternType,
+  type MessageType,
+  DEFAULT_PATTERN_STRENGTH,
+  DEFAULT_PATTERN_DARKNESS,
+  MAX_LENGTH_CM,
+  DEFAULT_PAPER_LENGTH_CM,
+  DEFAULT_PRINTER_IP,
+  DEFAULT_PRINTER_PORT,
+  PATTERN_MIN,
+  PATTERN_MAX,
+} from "@/constants";
 
 export default function Home() {
   const { settings, updateSettings } = useSettings();
   const [amount, setAmount] = useState("1");
   const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(29);
-  const [patternDarkness, setPatternDarkness] = useState(100);
+  const [patternStrength, setPatternStrength] = useState(DEFAULT_PATTERN_STRENGTH);
+  const [patternDarkness, setPatternDarkness] = useState(DEFAULT_PATTERN_DARKNESS);
   const [showSettings, setShowSettings] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
   const [result, setResult] = useState<{
@@ -24,8 +32,8 @@ export default function Home() {
     message: string;
   } | null>(null);
 
-  const maxLengthCm = parseFloat(settings.rollLength) || 100;
-  const paperLengthCm = parseFloat(settings.paperLength) || 5;
+  const maxLengthCm = parseFloat(settings.rollLength) || MAX_LENGTH_CM;
+  const paperLengthCm = parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
   const parsedAmount = parseInt(amount, 10);
 
   function handlePrint() {
@@ -120,7 +128,7 @@ export default function Home() {
                     onChange={(e) =>
                       updateSettings({ printerIp: e.target.value })
                     }
-                    placeholder="192.168.1.56"
+                    placeholder={DEFAULT_PRINTER_IP}
                     className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                   />
                 </div>
@@ -138,7 +146,7 @@ export default function Home() {
                     onChange={(e) =>
                       updateSettings({ printerPort: e.target.value })
                     }
-                    placeholder="9100"
+                    placeholder={DEFAULT_PRINTER_PORT}
                     className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                   />
                 </div>
@@ -161,7 +169,7 @@ export default function Home() {
                 inputMode="decimal"
                 value={settings.rollLength}
                 onChange={(e) => updateSettings({ rollLength: e.target.value })}
-                placeholder="100"
+                placeholder={String(MAX_LENGTH_CM)}
                 className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
               <p className="mt-1 text-xs text-zinc-400">
@@ -184,11 +192,11 @@ export default function Home() {
                 onChange={(e) =>
                   updateSettings({ paperLength: e.target.value })
                 }
-                placeholder="5"
+                placeholder={String(DEFAULT_PAPER_LENGTH_CM)}
                 className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
               <p className="mt-1 text-xs text-zinc-400">
-                Length of each sheet (default 5 cm)
+                {`Length of each sheet (default ${DEFAULT_PAPER_LENGTH_CM} cm)`}
               </p>
             </div>
 
@@ -250,8 +258,8 @@ export default function Home() {
                   <input
                     id="strength"
                     type="range"
-                    min={1}
-                    max={100}
+                    min={PATTERN_MIN}
+                    max={PATTERN_MAX}
                     value={patternStrength}
                     onChange={(e) => setPatternStrength(Number(e.target.value))}
                     className="w-full accent-zinc-900 dark:accent-zinc-100"
@@ -270,8 +278,8 @@ export default function Home() {
                   <input
                     id="darkness"
                     type="range"
-                    min={1}
-                    max={100}
+                    min={PATTERN_MIN}
+                    max={PATTERN_MAX}
                     value={patternDarkness}
                     onChange={(e) => setPatternDarkness(Number(e.target.value))}
                     className="w-full accent-zinc-900 dark:accent-zinc-100"

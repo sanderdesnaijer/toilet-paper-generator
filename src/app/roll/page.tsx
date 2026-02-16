@@ -3,12 +3,20 @@
 import { useState, useTransition, useCallback } from "react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
-import {
-  printToiletPaper,
-  type MessageType,
-  type PatternType,
-} from "../actions";
+import { printToiletPaper } from "../actions";
 import { ToiletRoll } from "@/components/ToiletRoll";
+import {
+  type PatternType,
+  type MessageType,
+  DEFAULT_PATTERN_STRENGTH,
+  DEFAULT_PATTERN_DARKNESS,
+  MAX_LENGTH_CM,
+  DEFAULT_PAPER_LENGTH_CM,
+  DEFAULT_PRINTER_IP,
+  DEFAULT_PRINTER_PORT,
+  PATTERN_MIN,
+  PATTERN_MAX,
+} from "@/constants";
 
 export default function RollPage() {
   const { settings, updateSettings } = useSettings();
@@ -16,8 +24,8 @@ export default function RollPage() {
   const [sheetCount, setSheetCount] = useState(0);
   const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(29);
-  const [patternDarkness, setPatternDarkness] = useState(100);
+  const [patternStrength, setPatternStrength] = useState(DEFAULT_PATTERN_STRENGTH);
+  const [patternDarkness, setPatternDarkness] = useState(DEFAULT_PATTERN_DARKNESS);
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
@@ -26,8 +34,8 @@ export default function RollPage() {
     message: string;
   } | null>(null);
 
-  const maxLengthCm = parseFloat(settings.rollLength) || 100;
-  const paperLengthCm = parseFloat(settings.paperLength) || 5;
+  const maxLengthCm = parseFloat(settings.rollLength) || MAX_LENGTH_CM;
+  const paperLengthCm = parseFloat(settings.paperLength) || DEFAULT_PAPER_LENGTH_CM;
 
   const handleRollLengthChange = useCallback((newLength: number) => {
     setLengthCm(newLength);
@@ -68,7 +76,7 @@ export default function RollPage() {
           inputMode="decimal"
           value={settings.rollLength}
           onChange={(e) => updateSettings({ rollLength: e.target.value })}
-          placeholder="100"
+          placeholder={String(MAX_LENGTH_CM)}
           className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
         <p className="mt-1 text-xs text-zinc-400">
@@ -89,7 +97,7 @@ export default function RollPage() {
           inputMode="decimal"
           value={settings.paperLength}
           onChange={(e) => updateSettings({ paperLength: e.target.value })}
-          placeholder="5"
+          placeholder={String(DEFAULT_PAPER_LENGTH_CM)}
           className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
         <p className="mt-1 text-xs text-zinc-400">
@@ -134,8 +142,8 @@ export default function RollPage() {
             <input
               id={`${prefix}-strength`}
               type="range"
-              min={1}
-              max={100}
+              min={PATTERN_MIN}
+              max={PATTERN_MAX}
               value={patternStrength}
               onChange={(e) => setPatternStrength(Number(e.target.value))}
               className="w-full accent-zinc-900 dark:accent-zinc-100"
@@ -154,8 +162,8 @@ export default function RollPage() {
             <input
               id={`${prefix}-darkness`}
               type="range"
-              min={1}
-              max={100}
+              min={PATTERN_MIN}
+              max={PATTERN_MAX}
               value={patternDarkness}
               onChange={(e) => setPatternDarkness(Number(e.target.value))}
               className="w-full accent-zinc-900 dark:accent-zinc-100"
@@ -252,7 +260,7 @@ export default function RollPage() {
                 type="text"
                 value={settings.printerIp}
                 onChange={(e) => updateSettings({ printerIp: e.target.value })}
-                placeholder="192.168.1.56"
+                placeholder={DEFAULT_PRINTER_IP}
                 className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
             </div>
@@ -270,7 +278,7 @@ export default function RollPage() {
                 onChange={(e) =>
                   updateSettings({ printerPort: e.target.value })
                 }
-                placeholder="9100"
+                placeholder={DEFAULT_PRINTER_PORT}
                 className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
             </div>
@@ -290,6 +298,7 @@ export default function RollPage() {
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
+            messageType={messageType}
             className="h-full lg:aspect-square lg:h-auto lg:rounded-2xl"
           />
         </div>

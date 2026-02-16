@@ -1,0 +1,38 @@
+---
+description: Keep the codebase DRY – single source of truth for constants, types, and defaults
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# DRY: Single Source of Truth
+
+All shared constants, types, and default values live in `src/constants.ts`.
+
+## Rules
+
+1. **Types** – `PatternType`, `MessageType`, and other shared types are defined once in `src/constants.ts`. Import them from there; never redefine locally.
+
+2. **Default values** – Use the named constants (`DEFAULT_PATTERN_STRENGTH`, `DEFAULT_PAPER_LENGTH_CM`, `DEFAULT_PRINTER_IP`, etc.) instead of magic numbers or strings. This includes default props, `useState` initialisers, fallback values (`|| 100`), and `placeholder` attributes.
+
+3. **Printer / ESC-POS constants** – `PRINT_WIDTH_DOTS`, `DOTS_PER_CM`, `CHUNK_HEIGHT`, etc. are in `src/constants.ts` and imported by `actions.ts`. Don't duplicate them.
+
+4. **Range limits** – Use `PATTERN_MIN` / `PATTERN_MAX` for slider `min` / `max` props.
+
+5. **Re-exporting** – `actions.ts` re-exports types for server-action callers:
+
+```typescript
+// In actions.ts
+export type { PatternType, MessageType };
+```
+
+## Quick reference
+
+| Constant | Value | Purpose |
+|---|---|---|
+| `MAX_LENGTH_CM` | 100 | Max roll length |
+| `DEFAULT_PAPER_LENGTH_CM` | 5 | Default sheet length |
+| `DEFAULT_PATTERN_STRENGTH` | 29 | Pattern density default |
+| `DEFAULT_PATTERN_DARKNESS` | 100 | Pattern darkness default |
+| `DEFAULT_PRINTER_IP` | 192.168.1.56 | Printer IP placeholder / default |
+| `DEFAULT_PRINTER_PORT` | 9100 | Printer port placeholder / default |
+| `FLOOR_Y` | -3.5 | Shared floor position for 3D scene & cloth sim |

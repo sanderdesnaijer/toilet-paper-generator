@@ -9,6 +9,12 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import {
+  DEFAULT_PRINTER_IP,
+  DEFAULT_PRINTER_PORT,
+  MAX_LENGTH_CM,
+  DEFAULT_PAPER_LENGTH_CM,
+} from "@/constants";
 
 export type PrinterSettings = {
   printerIp: string;
@@ -25,10 +31,10 @@ type SettingsContextType = {
 const STORAGE_KEY = "toilet-paper-printer-settings";
 
 const DEFAULT_SETTINGS: PrinterSettings = {
-  printerIp: "192.168.1.56",
-  printerPort: "9100",
-  rollLength: "100",
-  paperLength: "5",
+  printerIp: DEFAULT_PRINTER_IP,
+  printerPort: DEFAULT_PRINTER_PORT,
+  rollLength: String(MAX_LENGTH_CM),
+  paperLength: String(DEFAULT_PAPER_LENGTH_CM),
 };
 
 function loadSettings(): PrinterSettings {
