@@ -19,6 +19,7 @@ export default function RollPage() {
   const [patternStrength, setPatternStrength] = useState(29);
   const [patternDarkness, setPatternDarkness] = useState(100);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMobileControls, setShowMobileControls] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
   const [result, setResult] = useState<{
     success: boolean;
@@ -52,10 +53,142 @@ export default function RollPage() {
     });
   }
 
+  const renderControls = (prefix: string) => (
+    <>
+      <div>
+        <label
+          htmlFor={`${prefix}-rollLength`}
+          className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+        >
+          Roll length (cm)
+        </label>
+        <input
+          id={`${prefix}-rollLength`}
+          type="text"
+          inputMode="decimal"
+          value={settings.rollLength}
+          onChange={(e) => updateSettings({ rollLength: e.target.value })}
+          placeholder="100"
+          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+        />
+        <p className="mt-1 text-xs text-zinc-400">
+          Max length of the paper roll
+        </p>
+      </div>
+
+      <div>
+        <label
+          htmlFor={`${prefix}-paperLength`}
+          className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+        >
+          Paper length per sheet (cm)
+        </label>
+        <input
+          id={`${prefix}-paperLength`}
+          type="text"
+          inputMode="decimal"
+          value={settings.paperLength}
+          onChange={(e) => updateSettings({ paperLength: e.target.value })}
+          placeholder="5"
+          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+        />
+        <p className="mt-1 text-xs text-zinc-400">
+          Scroll the roll to set the number of sheets
+        </p>
+      </div>
+
+      <div>
+        <label
+          htmlFor={`${prefix}-pattern`}
+          className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+        >
+          Pattern
+        </label>
+        <select
+          id={`${prefix}-pattern`}
+          value={pattern}
+          onChange={(e) => setPattern(e.target.value as PatternType)}
+          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+        >
+          <option value="none">None (blank)</option>
+          <option value="dots">Dots</option>
+          <option value="stripes">Stripes</option>
+          <option value="grid">Grid</option>
+          <option value="checkerboard">Checkerboard</option>
+          <option value="diamonds">Diamonds</option>
+        </select>
+      </div>
+
+      {pattern !== "none" && (
+        <>
+          <div>
+            <label
+              htmlFor={`${prefix}-strength`}
+              className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              <span>Density</span>
+              <span className="text-xs font-normal text-zinc-400">
+                {patternStrength}%
+              </span>
+            </label>
+            <input
+              id={`${prefix}-strength`}
+              type="range"
+              min={1}
+              max={100}
+              value={patternStrength}
+              onChange={(e) => setPatternStrength(Number(e.target.value))}
+              className="w-full accent-zinc-900 dark:accent-zinc-100"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor={`${prefix}-darkness`}
+              className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              <span>Darkness</span>
+              <span className="text-xs font-normal text-zinc-400">
+                {patternDarkness}%
+              </span>
+            </label>
+            <input
+              id={`${prefix}-darkness`}
+              type="range"
+              min={1}
+              max={100}
+              value={patternDarkness}
+              onChange={(e) => setPatternDarkness(Number(e.target.value))}
+              className="w-full accent-zinc-900 dark:accent-zinc-100"
+            />
+          </div>
+        </>
+      )}
+
+      <div>
+        <label
+          htmlFor={`${prefix}-messageType`}
+          className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+        >
+          Message
+        </label>
+        <select
+          id={`${prefix}-messageType`}
+          value={messageType}
+          onChange={(e) => setMessageType(e.target.value as MessageType)}
+          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+        >
+          <option value="none">None</option>
+          <option value="wipe-counter">Wipe counter</option>
+          <option value="inspirational-quote">Inspirational quote</option>
+        </select>
+      </div>
+    </>
+  );
+
   return (
-    <div className="flex min-h-screen flex-col items-center bg-zinc-50 p-4 font-sans dark:bg-zinc-950">
+    <div className="flex h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:h-auto lg:min-h-screen lg:items-center lg:p-4">
       {/* Top nav */}
-      <nav className="mb-4 flex w-full max-w-5xl items-center justify-between">
+      <nav className="relative z-30 flex w-full items-center justify-between px-4 py-2 lg:mb-4 lg:max-w-5xl">
         <Link
           href="/"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
@@ -102,7 +235,7 @@ export default function RollPage() {
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="mb-4 w-full max-w-5xl rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="mx-4 mb-2 w-auto rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 lg:mx-auto lg:mb-4 lg:w-full lg:max-w-5xl">
           <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             Printer Settings
           </h2>
@@ -146,9 +279,9 @@ export default function RollPage() {
       )}
 
       {/* Main content */}
-      <div className="flex w-full max-w-5xl flex-col gap-6 lg:flex-row lg:items-start">
-        {/* 3D Roll — hero element */}
-        <div className="w-full lg:flex-1">
+      <div className="relative flex min-h-0 flex-1 flex-col lg:w-full lg:max-w-5xl lg:flex-row lg:items-start lg:gap-6">
+        {/* 3D Roll — full screen on mobile, normal on desktop */}
+        <div className="min-h-0 flex-1 lg:w-full lg:flex-1">
           <ToiletRoll
             onLengthChange={handleRollLengthChange}
             onSheetCountChange={handleSheetCountChange}
@@ -157,143 +290,13 @@ export default function RollPage() {
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
+            className="h-full lg:aspect-square lg:h-auto lg:rounded-2xl"
           />
         </div>
 
-        {/* Controls sidebar */}
-        <aside className="flex w-full flex-col gap-5 rounded-2xl bg-white p-6 shadow-lg dark:bg-zinc-900 lg:w-80">
-          {/* Roll length setting */}
-          <div>
-            <label
-              htmlFor="rollLength"
-              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Roll length (cm)
-            </label>
-            <input
-              id="rollLength"
-              type="text"
-              inputMode="decimal"
-              value={settings.rollLength}
-              onChange={(e) => updateSettings({ rollLength: e.target.value })}
-              placeholder="100"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
-            />
-            <p className="mt-1 text-xs text-zinc-400">
-              Max length of the paper roll
-            </p>
-          </div>
-
-          {/* Paper length per sheet */}
-          <div>
-            <label
-              htmlFor="paperLength"
-              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Paper length per sheet (cm)
-            </label>
-            <input
-              id="paperLength"
-              type="text"
-              inputMode="decimal"
-              value={settings.paperLength}
-              onChange={(e) => updateSettings({ paperLength: e.target.value })}
-              placeholder="5"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
-            />
-            <p className="mt-1 text-xs text-zinc-400">
-              Scroll the roll to set the number of sheets
-            </p>
-          </div>
-
-          {/* Pattern */}
-          <div>
-            <label
-              htmlFor="pattern"
-              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Pattern
-            </label>
-            <select
-              id="pattern"
-              value={pattern}
-              onChange={(e) => setPattern(e.target.value as PatternType)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-            >
-              <option value="none">None (blank)</option>
-              <option value="dots">Dots</option>
-              <option value="stripes">Stripes</option>
-              <option value="grid">Grid</option>
-              <option value="checkerboard">Checkerboard</option>
-              <option value="diamonds">Diamonds</option>
-            </select>
-          </div>
-
-          {/* Pattern controls */}
-          {pattern !== "none" && (
-            <>
-              <div>
-                <label
-                  htmlFor="strength"
-                  className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                >
-                  <span>Density</span>
-                  <span className="text-xs font-normal text-zinc-400">
-                    {patternStrength}%
-                  </span>
-                </label>
-                <input
-                  id="strength"
-                  type="range"
-                  min={1}
-                  max={100}
-                  value={patternStrength}
-                  onChange={(e) => setPatternStrength(Number(e.target.value))}
-                  className="w-full accent-zinc-900 dark:accent-zinc-100"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="darkness"
-                  className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
-                >
-                  <span>Darkness</span>
-                  <span className="text-xs font-normal text-zinc-400">
-                    {patternDarkness}%
-                  </span>
-                </label>
-                <input
-                  id="darkness"
-                  type="range"
-                  min={1}
-                  max={100}
-                  value={patternDarkness}
-                  onChange={(e) => setPatternDarkness(Number(e.target.value))}
-                  className="w-full accent-zinc-900 dark:accent-zinc-100"
-                />
-              </div>
-            </>
-          )}
-
-          {/* Message */}
-          <div>
-            <label
-              htmlFor="messageType"
-              className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Message
-            </label>
-            <select
-              id="messageType"
-              value={messageType}
-              onChange={(e) => setMessageType(e.target.value as MessageType)}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-            >
-              <option value="none">None</option>
-              <option value="wipe-counter">Wipe counter</option>
-              <option value="inspirational-quote">Inspirational quote</option>
-            </select>
-          </div>
+        {/* Desktop Controls sidebar */}
+        <aside className="hidden w-full flex-col gap-5 rounded-2xl bg-white p-6 shadow-lg dark:bg-zinc-900 lg:flex lg:w-80">
+          {renderControls("desktop")}
 
           {/* Print Button */}
           <button
@@ -345,6 +348,137 @@ export default function RollPage() {
           )}
         </aside>
       </div>
+
+      {/* ─── Mobile-only floating UI ─── */}
+
+      {/* Backdrop when controls are open */}
+      {showMobileControls && (
+        <div
+          className="fixed inset-0 z-40 bg-black/10 lg:hidden"
+          onClick={() => setShowMobileControls(false)}
+        />
+      )}
+
+      {/* Mobile controls panel */}
+      {showMobileControls && (
+        <div className="fixed bottom-20 right-4 z-50 flex max-h-[70vh] w-72 flex-col gap-4 overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 lg:hidden">
+          {renderControls("mobile")}
+        </div>
+      )}
+
+      {/* Mobile controls toggle button — bottom right */}
+      <button
+        onClick={() => setShowMobileControls(!showMobileControls)}
+        className={`fixed bottom-4 right-4 z-50 rounded-full p-3.5 shadow-lg transition-colors lg:hidden ${
+          showMobileControls
+            ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+            : "bg-white/90 text-zinc-600 backdrop-blur-sm dark:bg-zinc-800/90 dark:text-zinc-300"
+        }`}
+        title="Toggle controls"
+      >
+        {showMobileControls ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="4" x2="4" y1="21" y2="14" />
+            <line x1="4" x2="4" y1="10" y2="3" />
+            <line x1="12" x2="12" y1="21" y2="12" />
+            <line x1="12" x2="12" y1="8" y2="3" />
+            <line x1="20" x2="20" y1="21" y2="16" />
+            <line x1="20" x2="20" y1="12" y2="3" />
+            <line x1="2" x2="6" y1="14" y2="14" />
+            <line x1="10" x2="14" y1="8" y2="8" />
+            <line x1="18" x2="22" y1="16" y2="16" />
+          </svg>
+        )}
+      </button>
+
+      {/* Mobile print button — floating bottom center */}
+      <button
+        onClick={handlePrint}
+        disabled={isPrinting || sheetCount <= 0}
+        className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-full bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 lg:hidden"
+      >
+        {isPrinting ? (
+          <>
+            <svg
+              className="h-4 w-4 animate-spin"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+            Printing...
+          </>
+        ) : (
+          <>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6" />
+              <rect x="6" y="14" width="12" height="8" rx="1" />
+            </svg>
+            {sheetCount === 0
+              ? "Scroll to print"
+              : `Print ${sheetCount} sheet${sheetCount !== 1 ? "s" : ""}`}
+          </>
+        )}
+      </button>
+
+      {/* Mobile result toast */}
+      {result && (
+        <div
+          className={`fixed bottom-16 left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-sm font-medium shadow-lg lg:hidden ${
+            result.success ? "bg-green-500 text-white" : "bg-red-500 text-white"
+          }`}
+        >
+          {result.message}
+        </div>
+      )}
     </div>
   );
 }

@@ -769,6 +769,7 @@ type ToiletRollProps = {
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
+  className?: string;
 };
 
 export function ToiletRoll({
@@ -780,6 +781,7 @@ export function ToiletRoll({
   pattern = "dots",
   patternStrength = 29,
   patternDarkness = 100,
+  className,
 }: ToiletRollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [rollState, setRollState] = useState<RollPhysicsState>({
@@ -909,10 +911,13 @@ export function ToiletRoll({
   const percentage = Math.round((rollState.unrolledLength / maxLengthCm) * 100);
 
   return (
-    <div className="relative w-full" ref={containerRef}>
+    <div
+      className={`relative w-full ${className ? "h-full" : ""}`}
+      ref={containerRef}
+    >
       <div
         ref={canvasWrapperRef}
-        className="relative aspect-square w-full cursor-grab select-none overflow-hidden rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200 active:cursor-grabbing dark:from-zinc-800 dark:to-zinc-900"
+        className={`relative w-full cursor-grab select-none overflow-hidden bg-gradient-to-b from-zinc-100 to-zinc-200 active:cursor-grabbing dark:from-zinc-800 dark:to-zinc-900 ${className ?? "aspect-square rounded-2xl"}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
