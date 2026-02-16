@@ -151,14 +151,14 @@ export function useRollPhysics(
     const deltaY = clientY - lastPointerY.current;
     lastPointerY.current = clientY;
 
-    // Convert pixel delta to angular velocity
+    // Convert pixel delta to angular change (radians)
     // Positive deltaY (dragging down) = unroll = positive rotation
     const angularDelta = deltaY * config.sensitivity;
-    state.angularVelocity = angularDelta * 60; // Scale for visual feedback
+    state.angularVelocity = angularDelta * 60; // Scale for momentum on release
 
-    // Convert to paper length change
+    // Arc-length formula: paper unrolled = angle × radius
     const currentRadius = calculateRadius(state.unrolledLength, config);
-    const lengthDelta = angularDelta * currentRadius * 5;
+    const lengthDelta = angularDelta * currentRadius;
 
     state.totalRotation += angularDelta;
     state.unrolledLength = Math.max(

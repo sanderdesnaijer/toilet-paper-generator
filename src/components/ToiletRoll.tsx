@@ -122,16 +122,26 @@ function createPatternTexture(
 // ────────────────────────── Paper Trail Mesh ──────────────────────────
 
 function buildTrailGeometry(trailLength: number): THREE.BufferGeometry {
-  const segments = 20;
+  // Cap segment count for performance — trail is mostly straight so
+  // high density is only needed in the curve zone near the roll
+  const segments = Math.min(80, Math.max(20, Math.ceil(trailLength * 0.5)));
   const vertices: number[] = [];
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
 
+  // Gentle curve only in a small section near the roll exit
+  const curveZone = Math.min(3, trailLength * 0.3);
+
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     const y = -t * trailLength;
-    const z = Math.sin(t * Math.PI * 0.5) * 0.3;
+
+    const distFromTop = t * trailLength;
+    const z =
+      distFromTop < curveZone
+        ? Math.sin((distFromTop / curveZone) * Math.PI * 0.5) * 0.5
+        : 0.5;
 
     vertices.push(-ROLL_WIDTH / 2, y, z);
     normals.push(0, 0, -1);
@@ -157,20 +167,20 @@ function buildTrailGeometry(trailLength: number): THREE.BufferGeometry {
 }
 
 function PaperTrail({
-  unrolledLength,
+  stateRef,
+  fullConfig,
   pattern,
   patternStrength,
   patternDarkness,
 }: {
-  unrolledLength: number;
+  stateRef: React.RefObject<RollPhysicsState>;
+  fullConfig: RollPhysicsConfig & Partial<RollPhysicsConfig>;
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
-
-  const trailLength = Math.min(unrolledLength * 0.06, 8);
 
   // Own texture for the trail
   const trailTexture = useMemo(() => {
@@ -184,10 +194,18 @@ function PaperTrail({
   }, [trailTexture]);
 
   // Imperatively update geometry + material every frame
+  // Reads directly from stateRef for real-time updates during inertia
   useFrame(() => {
     if (!meshRef.current) return;
 
-    const visible = trailLength >= 0.1;
+    const state = stateRef.current;
+    if (!state) return;
+
+    // 1:1 scale — trail length in cm matches scene units so
+    // paper exit speed equals roll surface speed
+    const trailLength = state.unrolledLength;
+
+    const visible = trailLength >= 0.5;
     meshRef.current.visible = visible;
 
     if (visible) {
@@ -233,26 +251,31 @@ function PaperTrail({
 // ───────────────── Perforation Lines on the Paper Strip ──────────────
 
 function PerforationLines({ unrolledLength }: { unrolledLength: number }) {
-  const trailLength = Math.min(unrolledLength * 0.06, 8);
-  if (trailLength < 0.5) return null;
+  // 1:1 scale — unrolledLength is in cm, scene units are cm
+  const trailLength = unrolledLength;
+  if (trailLength < 5) return null;
 
-  const sheetLengthInScene = 11 * 0.06; // 11cm sheet converted to scene units
+  const sheetLength = 11; // 11 cm per sheet
+  const curveZone = Math.min(3, trailLength * 0.3);
   const lines: number[] = [];
 
-  let pos = sheetLengthInScene;
+  let pos = sheetLength;
   while (pos < trailLength) {
     lines.push(pos);
-    pos += sheetLengthInScene;
+    pos += sheetLength;
   }
 
   return (
     <group>
       {lines.map((y, i) => {
-        const t = y / trailLength;
-        const z = Math.sin(t * Math.PI * 0.5) * 0.3 + 0.01;
+        const distFromTop = y;
+        const z =
+          distFromTop < curveZone
+            ? Math.sin((distFromTop / curveZone) * Math.PI * 0.5) * 0.5 + 0.01
+            : 0.51;
         return (
           <mesh key={i} position={[0, -y, z]}>
-            <planeGeometry args={[ROLL_WIDTH * 0.95, 0.02]} />
+            <planeGeometry args={[ROLL_WIDTH * 0.95, 0.04]} />
             <meshBasicMaterial
               color="#ccc"
               transparent
@@ -269,15 +292,15 @@ function PerforationLines({ unrolledLength }: { unrolledLength: number }) {
 // ────────────────────── Roll 3D Component ─────────────────────────
 
 function Roll3D({
-  state,
-  config,
+  stateRef,
+  fullConfig,
   onRadiusChange,
   pattern,
   patternStrength,
   patternDarkness,
 }: {
-  state: RollPhysicsState;
-  config: Partial<RollPhysicsConfig>;
+  stateRef: React.RefObject<RollPhysicsState>;
+  fullConfig: RollPhysicsConfig & Partial<RollPhysicsConfig>;
   onRadiusChange?: (radius: number) => void;
   pattern: PatternType;
   patternStrength: number;
@@ -289,18 +312,6 @@ function Roll3D({
   const capRightRef = useRef<THREE.Mesh>(null);
   const capLeftRef = useRef<THREE.Mesh>(null);
   const lastRadiusRef = useRef<number>(-1);
-
-  const fullConfig = {
-    maxLengthCm: MAX_LENGTH_CM,
-    friction: 0.92,
-    sensitivity: 0.008,
-    paperThicknessCm: 0.01,
-    coreRadiusCm: CORE_RADIUS,
-    outerRadiusCm: OUTER_RADIUS,
-    ...config,
-  };
-
-  const currentRadius = calculateRadius(state.unrolledLength, fullConfig);
 
   // Own texture for the roll outer shell
   const rollTexture = useMemo(() => {
@@ -314,8 +325,14 @@ function Roll3D({
   }, [rollTexture]);
 
   // Imperatively update geometry, material, and caps every frame
-  // This avoids R3F reconciliation issues with frequently changing geometry
+  // Reads directly from stateRef so updates happen every animation frame,
+  // not just on React re-renders
   useFrame(() => {
+    const state = stateRef.current;
+    if (!state) return;
+
+    const currentRadius = calculateRadius(state.unrolledLength, fullConfig);
+
     if (groupRef.current) {
       groupRef.current.rotation.x = state.totalRotation;
     }
@@ -331,7 +348,6 @@ function Roll3D({
     if (shellMeshRef.current) {
       shellMeshRef.current.visible = hasPaper;
       if (hasPaper && radiusChanged) {
-        // Dispose old geometry and create new one at current radius
         const old = shellMeshRef.current.geometry;
         const geo = new THREE.CylinderGeometry(
           currentRadius,
@@ -504,6 +520,7 @@ function CameraController({
 
 function Scene({
   state,
+  stateRef,
   config,
   cameraRef,
   pattern = "none",
@@ -511,17 +528,38 @@ function Scene({
   patternDarkness = 100,
 }: {
   state: RollPhysicsState;
+  stateRef: React.RefObject<RollPhysicsState>;
   config: Partial<RollPhysicsConfig>;
   cameraRef: React.RefObject<CameraState>;
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
 }) {
-  const [currentRadius, setCurrentRadius] = useState(OUTER_RADIUS);
+  const trailGroupRef = useRef<THREE.Group>(null);
+  const radiusRef = useRef(OUTER_RADIUS);
 
-  // Paper trail exits from the back of the roll (270°) and drops straight down
-  const trailY = 2;
-  const trailZ = -currentRadius;
+  const fullConfig = useMemo(
+    () => ({
+      maxLengthCm: MAX_LENGTH_CM,
+      friction: 0.92,
+      sensitivity: 0.008,
+      paperThicknessCm: 0.01,
+      coreRadiusCm: CORE_RADIUS,
+      outerRadiusCm: OUTER_RADIUS,
+      ...config,
+    }),
+    [config],
+  );
+
+  const handleRadiusChange = useCallback((r: number) => {
+    radiusRef.current = r;
+  }, []);
+
+  useFrame(() => {
+    if (trailGroupRef.current) {
+      trailGroupRef.current.position.set(0, 2, -radiusRef.current);
+    }
+  });
 
   return (
     <>
@@ -531,9 +569,9 @@ function Scene({
 
       <group position={[0, 2, 0]}>
         <Roll3D
-          state={state}
-          config={config}
-          onRadiusChange={setCurrentRadius}
+          stateRef={stateRef}
+          fullConfig={fullConfig}
+          onRadiusChange={handleRadiusChange}
           pattern={pattern}
           patternStrength={patternStrength}
           patternDarkness={patternDarkness}
@@ -541,9 +579,10 @@ function Scene({
       </group>
 
       {/* Paper trail dropping from the back of the roll (270°) */}
-      <group position={[0, trailY, trailZ]}>
+      <group ref={trailGroupRef} position={[0, 2, -OUTER_RADIUS]}>
         <PaperTrail
-          unrolledLength={state.unrolledLength}
+          stateRef={stateRef}
+          fullConfig={fullConfig}
           pattern={pattern}
           patternStrength={patternStrength}
           patternDarkness={patternDarkness}
@@ -605,8 +644,13 @@ export function ToiletRoll({
     [onLengthChange],
   );
 
-  const { onPointerDown, onPointerMove, onPointerUp, setUnrolledLength } =
-    useRollPhysics(handleUpdate, config);
+  const {
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    setUnrolledLength,
+    stateRef,
+  } = useRollPhysics(handleUpdate, config);
 
   // Sync external length changes (from manual input)
   useEffect(() => {
@@ -680,7 +724,7 @@ export function ToiletRoll({
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const cam = cameraRef.current;
-      cam.radius = Math.max(5, Math.min(60, cam.radius + e.deltaY * 0.02));
+      cam.radius = Math.max(5, Math.min(500, cam.radius + e.deltaY * 0.05));
     };
 
     el.addEventListener("wheel", handleWheel, { passive: false });
@@ -705,11 +749,12 @@ export function ToiletRoll({
           camera={{
             fov: 35,
             near: 0.1,
-            far: 100,
+            far: 1000,
           }}
         >
           <Scene
             state={rollState}
+            stateRef={stateRef}
             config={config}
             cameraRef={cameraRef}
             pattern={pattern}
