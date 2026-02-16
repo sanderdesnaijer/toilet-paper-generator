@@ -143,13 +143,17 @@ function buildTrailGeometry(trailLength: number): THREE.BufferGeometry {
         ? Math.sin((distFromTop / curveZone) * Math.PI * 0.5) * 0.5
         : 0.5;
 
+    // UV anchored to the leading edge (bottom) so the pattern
+    // scrolls with the paper as it unrolls from the roll
+    const v = (trailLength - distFromTop) / ROLL_WIDTH;
+
     vertices.push(-ROLL_WIDTH / 2, y, z);
     normals.push(0, 0, -1);
-    uvs.push(0, t);
+    uvs.push(0, v);
 
     vertices.push(ROLL_WIDTH / 2, y, z);
     normals.push(0, 0, -1);
-    uvs.push(1, t);
+    uvs.push(1, v);
 
     if (i < segments) {
       const base = i * 2;
@@ -168,13 +172,11 @@ function buildTrailGeometry(trailLength: number): THREE.BufferGeometry {
 
 function PaperTrail({
   stateRef,
-  fullConfig,
   pattern,
   patternStrength,
   patternDarkness,
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
-  fullConfig: RollPhysicsConfig & Partial<RollPhysicsConfig>;
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
@@ -219,10 +221,10 @@ function PaperTrail({
         if (matRef.current.map !== trailTexture) {
           matRef.current.map = trailTexture;
           matRef.current.color.set("#ffffff");
+          // Repeat is (1,1) — tiling is handled by absolute UVs in geometry
+          trailTexture.repeat.set(1, 1);
           matRef.current.needsUpdate = true;
         }
-        const repeatV = Math.max(1, Math.round(trailLength / ROLL_WIDTH));
-        trailTexture.repeat.set(1, repeatV);
       } else {
         if (matRef.current.map !== null) {
           matRef.current.map = null;
@@ -334,7 +336,7 @@ function Roll3D({
     const currentRadius = calculateRadius(state.unrolledLength, fullConfig);
 
     if (groupRef.current) {
-      groupRef.current.rotation.x = state.totalRotation;
+      groupRef.current.rotation.x = -state.totalRotation;
     }
     onRadiusChange?.(currentRadius);
 
@@ -421,7 +423,9 @@ function Roll3D({
 
       {/* Paper layers (outer shell) — pattern is shown here */}
       <mesh ref={shellMeshRef} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[OUTER_RADIUS, OUTER_RADIUS, ROLL_WIDTH, 64, 1, true]} />
+        <cylinderGeometry
+          args={[OUTER_RADIUS, OUTER_RADIUS, ROLL_WIDTH, 64, 1, true]}
+        />
         <meshStandardMaterial
           ref={shellMatRef}
           color={PAPER_COLOR}
@@ -582,7 +586,6 @@ function Scene({
       <group ref={trailGroupRef} position={[0, 2, -OUTER_RADIUS]}>
         <PaperTrail
           stateRef={stateRef}
-          fullConfig={fullConfig}
           pattern={pattern}
           patternStrength={patternStrength}
           patternDarkness={patternDarkness}
