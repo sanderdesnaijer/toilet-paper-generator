@@ -224,6 +224,7 @@ function PaperTrail({
         side={THREE.DoubleSide}
         roughness={0.9}
         metalness={0}
+        envMapIntensity={0}
       />
     </mesh>
   );
@@ -425,6 +426,7 @@ function Roll3D({
         <meshStandardMaterial
           color={PAPER_COLOR}
           roughness={0.9}
+          envMapIntensity={0}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -437,6 +439,7 @@ function Roll3D({
         <meshStandardMaterial
           color={PAPER_COLOR}
           roughness={0.9}
+          envMapIntensity={0}
           side={THREE.DoubleSide}
         />
       </mesh>
