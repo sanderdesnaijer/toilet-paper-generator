@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import {
   INSPIRATIONAL_QUOTES,
   type PatternType,
@@ -209,10 +209,8 @@ export function PrintPreview({
   const safeLength = Number.isFinite(lengthCm) && lengthCm > 0 ? lengthCm : 5;
   const safeAmount = Number.isFinite(amount) && amount > 0 ? amount : 1;
   const previewHeight = clamp(Math.round(safeLength * 14), 180, 420);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const quoteIndex = useMemo(
-    () => Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length),
-    [messageType],
+  const [quoteIndex] = useState(() =>
+    Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length),
   );
   const message = getPreviewMessage(messageType, safeAmount, quoteIndex);
   const messageLines = wrapMessage(message, 22);

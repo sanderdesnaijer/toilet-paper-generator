@@ -13,15 +13,17 @@ export type PrinterSettings = {
   printerPort: string;
 };
 
+/* eslint-disable @typescript-eslint/no-unused-vars -- stub for static export; signature must match actions.server.ts */
 export async function printToiletPaper(
   _lengthCm: number,
   _amount: number,
   _settings: PrinterSettings,
-  _pattern: PatternType = "none",
-  _patternStrength: number = 50,
-  _patternDarkness: number = 100,
-  _messageType: MessageType = "none",
+  _pattern?: PatternType,
+  _patternStrength?: number,
+  _patternDarkness?: number,
+  _messageType?: MessageType,
 ): Promise<{ success: boolean; message: string }> {
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   return {
     success: false,
     message:
