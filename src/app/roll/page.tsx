@@ -9,16 +9,14 @@ import {
   type PatternType,
 } from "../actions";
 import { ToiletRoll } from "@/components/ToiletRoll";
-import { MAX_LENGTH_CM } from "@/constants";
 
 export default function RollPage() {
   const { settings, updateSettings } = useSettings();
   const [lengthCm, setLengthCm] = useState(0);
-  const [manualLength, setManualLength] = useState("0");
-  const [amount, setAmount] = useState("1");
-  const [pattern, setPattern] = useState<PatternType>("none");
+  const [sheetCount, setSheetCount] = useState(0);
+  const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(50);
+  const [patternStrength, setPatternStrength] = useState(29);
   const [patternDarkness, setPatternDarkness] = useState(100);
   const [showSettings, setShowSettings] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
@@ -27,34 +25,23 @@ export default function RollPage() {
     message: string;
   } | null>(null);
 
-  // Sync from 3D roll → manual input
-  const [externalLength, setExternalLength] = useState<number | undefined>(
-    undefined,
-  );
+  const maxLengthCm = parseFloat(settings.rollLength) || 100;
+  const paperLengthCm = parseFloat(settings.paperLength) || 5;
 
   const handleRollLengthChange = useCallback((newLength: number) => {
     setLengthCm(newLength);
-    setManualLength(newLength.toFixed(1));
   }, []);
 
-  // Sync from manual input → 3D roll
-  function handleManualLengthChange(value: string) {
-    setManualLength(value);
-    const parsed = parseFloat(value);
-    if (!isNaN(parsed) && parsed >= 0) {
-      setLengthCm(parsed);
-      setExternalLength(parsed);
-    }
-  }
-
-  const parsedAmount = parseInt(amount, 10);
+  const handleSheetCountChange = useCallback((count: number) => {
+    setSheetCount(count);
+  }, []);
 
   function handlePrint() {
     setResult(null);
     startPrinting(async () => {
       const res = await printToiletPaper(
         lengthCm,
-        parsedAmount,
+        sheetCount,
         settings,
         pattern,
         patternStrength,
@@ -131,9 +118,7 @@ export default function RollPage() {
                 id="printerIp"
                 type="text"
                 value={settings.printerIp}
-                onChange={(e) =>
-                  updateSettings({ printerIp: e.target.value })
-                }
+                onChange={(e) => updateSettings({ printerIp: e.target.value })}
                 placeholder="192.168.1.56"
                 className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
@@ -166,8 +151,9 @@ export default function RollPage() {
         <div className="w-full lg:flex-1">
           <ToiletRoll
             onLengthChange={handleRollLengthChange}
-            externalLength={externalLength}
-            maxLengthCm={MAX_LENGTH_CM}
+            onSheetCountChange={handleSheetCountChange}
+            maxLengthCm={maxLengthCm}
+            paperLengthCm={paperLengthCm}
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
@@ -176,47 +162,47 @@ export default function RollPage() {
 
         {/* Controls sidebar */}
         <aside className="flex w-full flex-col gap-5 rounded-2xl bg-white p-6 shadow-lg dark:bg-zinc-900 lg:w-80">
-          {/* Manual length override */}
+          {/* Roll length setting */}
           <div>
             <label
-              htmlFor="manualLength"
+              htmlFor="rollLength"
               className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Paper length (cm)
+              Roll length (cm)
             </label>
             <input
-              id="manualLength"
+              id="rollLength"
               type="text"
               inputMode="decimal"
-              value={manualLength}
-              onChange={(e) => handleManualLengthChange(e.target.value)}
-              placeholder="0"
+              value={settings.rollLength}
+              onChange={(e) => updateSettings({ rollLength: e.target.value })}
+              placeholder="100"
               className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             />
             <p className="mt-1 text-xs text-zinc-400">
-              Drag the 3D roll or type manually
+              Max length of the paper roll
             </p>
           </div>
 
-          {/* Amount */}
+          {/* Paper length per sheet */}
           <div>
             <label
-              htmlFor="amount"
+              htmlFor="paperLength"
               className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
-              Amount
+              Paper length per sheet (cm)
             </label>
             <input
-              id="amount"
+              id="paperLength"
               type="text"
-              inputMode="numeric"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="1"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+              inputMode="decimal"
+              value={settings.paperLength}
+              onChange={(e) => updateSettings({ paperLength: e.target.value })}
+              placeholder="5"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
             />
             <p className="mt-1 text-xs text-zinc-400">
-              Number of sheets to print (max 100)
+              Scroll the roll to set the number of sheets
             </p>
           </div>
 
@@ -312,7 +298,7 @@ export default function RollPage() {
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            disabled={isPrinting || lengthCm <= 0 || !(parsedAmount > 0)}
+            disabled={isPrinting || sheetCount <= 0}
             className="w-full rounded-xl bg-zinc-900 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {isPrinting ? (
@@ -338,8 +324,10 @@ export default function RollPage() {
                 </svg>
                 Printing...
               </span>
+            ) : sheetCount === 0 ? (
+              "Scroll the roll to print"
             ) : (
-              `Print ${parsedAmount || 0} sheet${parsedAmount !== 1 ? "s" : ""} (${lengthCm.toFixed(1)} cm)`
+              `Print ${sheetCount} sheet${sheetCount !== 1 ? "s" : ""}`
             )}
           </button>
 

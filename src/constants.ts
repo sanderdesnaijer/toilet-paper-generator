@@ -1,8 +1,11 @@
-/** Maximum paper length on the roll in cm */
+/** Maximum roll length in cm */
 export const MAX_LENGTH_CM = 100;
 
-/** Minimum paper length in cm */
+/** Minimum roll length in cm */
 export const MIN_LENGTH_CM = 1;
+
+/** Default paper (sheet) length in cm – every paperLength of unrolled paper = 1 sheet */
+export const DEFAULT_PAPER_LENGTH_CM = 5;
 
 // ─── Roll geometry ──────────────────────────────────────────────────
 export const CORE_RADIUS = 2.0;

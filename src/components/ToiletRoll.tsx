@@ -13,6 +13,7 @@ import {
 import type { RapierRigidBody } from "@react-three/rapier";
 import {
   MAX_LENGTH_CM,
+  DEFAULT_PAPER_LENGTH_CM,
   CORE_RADIUS,
   OUTER_RADIUS,
   ROLL_WIDTH,
@@ -447,11 +448,11 @@ type CameraState = {
 const ROLL_Y = 13;
 
 const INITIAL_CAMERA: CameraState = {
-  theta: Math.atan2(-25.8, -20.7),
-  phi: Math.acos(0.4 / Math.hypot(25.8, 0.4, 20.7)),
-  radius: Math.hypot(25.8, 0.4, 20.7),
+  theta: -3.8517,
+  phi: 0.9092,
+  radius: 46.33,
   targetX: 0,
-  targetY: (ROLL_Y + FLOOR_SURFACE_Y) / 2, // look between roll and floor
+  targetY: 4.79,
   targetZ: 0,
 };
 
@@ -461,6 +462,8 @@ function CameraController({
   cameraRef: React.RefObject<CameraState>;
 }) {
   const { camera } = useThree();
+
+  const lastLogRef = useRef(0);
 
   useFrame(() => {
     const s = cameraRef.current;
@@ -472,6 +475,15 @@ function CameraController({
 
     camera.position.set(x + s.targetX, y + s.targetY, z + s.targetZ);
     camera.lookAt(s.targetX, s.targetY, s.targetZ);
+
+    const now = Date.now();
+    if (now - lastLogRef.current > 2000) {
+      lastLogRef.current = now;
+      console.log(
+        `Camera position: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`,
+        `| CameraState: theta=${s.theta.toFixed(4)}, phi=${s.phi.toFixed(4)}, radius=${s.radius.toFixed(2)}, target=(${s.targetX.toFixed(2)}, ${s.targetY.toFixed(2)}, ${s.targetZ.toFixed(2)})`,
+      );
+    }
   });
 
   return null;
@@ -573,8 +585,8 @@ function Scene({
   dragRef,
   maxLengthCm,
   onUpdate,
-  pattern = "none",
-  patternStrength = 50,
+  pattern = "dots",
+  patternStrength = 29,
   patternDarkness = 100,
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
@@ -660,14 +672,19 @@ function Scene({
 
     // ── Spawn/despawn cloth rows based on unrolled length ──
     const cloth = clothRef.current;
-    const targetRows = Math.max(1, Math.floor(s.unrolledLength / 1.0) + 1);
+    const targetRows = Math.min(
+      CLOTH_MAX_ACTIVE_ROWS,
+      Math.max(1, Math.floor(s.unrolledLength / 1.0) + 1),
+    );
 
     // Spawn rows
     while (cloth.rowCount < targetRows && s.unrolledLength > 0.5) {
+      const before = cloth.rowCount;
       cloth.spawnRow(
         { x: _exitLeft.x, y: _exitLeft.y, z: _exitLeft.z },
         { x: _exitRight.x, y: _exitRight.y, z: _exitRight.z },
       );
+      if (cloth.rowCount === before) break;
     }
 
     // Despawn rows when rolling back
@@ -745,8 +762,10 @@ function Scene({
 
 type ToiletRollProps = {
   onLengthChange: (lengthCm: number) => void;
+  onSheetCountChange?: (sheetCount: number) => void;
   externalLength?: number;
   maxLengthCm?: number;
+  paperLengthCm?: number;
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
@@ -754,10 +773,12 @@ type ToiletRollProps = {
 
 export function ToiletRoll({
   onLengthChange,
+  onSheetCountChange,
   externalLength,
   maxLengthCm = MAX_LENGTH_CM,
-  pattern = "none",
-  patternStrength = 50,
+  paperLengthCm = DEFAULT_PAPER_LENGTH_CM,
+  pattern = "dots",
+  patternStrength = 29,
   patternDarkness = 100,
 }: ToiletRollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -793,8 +814,13 @@ export function ToiletRoll({
     (state: RollPhysicsState) => {
       setRollState(state);
       onLengthChange(Math.round(state.unrolledLength * 10) / 10);
+      const sheets =
+        paperLengthCm > 0
+          ? Math.floor(state.unrolledLength / paperLengthCm)
+          : 0;
+      onSheetCountChange?.(sheets);
     },
-    [onLengthChange],
+    [onLengthChange, onSheetCountChange, paperLengthCm],
   );
 
   // Sync external length changes (from manual input)
@@ -876,6 +902,10 @@ export function ToiletRoll({
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
 
+  const sheetCount =
+    paperLengthCm > 0
+      ? Math.floor(rollState.unrolledLength / paperLengthCm)
+      : 0;
   const percentage = Math.round((rollState.unrolledLength / maxLengthCm) * 100);
 
   return (
@@ -922,11 +952,12 @@ export function ToiletRoll({
 
       {/* HUD overlay */}
       <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-1">
-        <div className="rounded-lg bg-black/60 px-3 py-1.5 text-lg font-bold tabular-nums text-white backdrop-blur-sm">
-          {rollState.unrolledLength.toFixed(1)} cm
+        <div className="rounded-lg bg-black/60 px-3 py-1.5 text-2xl font-bold tabular-nums text-white backdrop-blur-sm">
+          {sheetCount} sheet{sheetCount !== 1 ? "s" : ""}
         </div>
         <div className="rounded-lg bg-black/40 px-3 py-1 text-xs text-white/80 backdrop-blur-sm">
-          {percentage}% unrolled
+          {rollState.unrolledLength.toFixed(1)} cm &middot; {percentage}%
+          unrolled
         </div>
       </div>
 

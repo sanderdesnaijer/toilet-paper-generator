@@ -13,6 +13,8 @@ import {
 export type PrinterSettings = {
   printerIp: string;
   printerPort: string;
+  rollLength: string;
+  paperLength: string;
 };
 
 type SettingsContextType = {
@@ -25,6 +27,8 @@ const STORAGE_KEY = "toilet-paper-printer-settings";
 const DEFAULT_SETTINGS: PrinterSettings = {
   printerIp: "192.168.1.56",
   printerPort: "9100",
+  rollLength: "100",
+  paperLength: "5",
 };
 
 function loadSettings(): PrinterSettings {

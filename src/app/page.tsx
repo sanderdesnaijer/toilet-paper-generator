@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/SettingsContext";
-import { MAX_LENGTH_CM, MIN_LENGTH_CM } from "@/constants";
 import {
   printToiletPaper,
   type MessageType,
@@ -13,11 +12,10 @@ import { PrintPreview } from "@/components/PrintPreview";
 
 export default function Home() {
   const { settings, updateSettings } = useSettings();
-  const [lengthCm, setLengthCm] = useState("100");
   const [amount, setAmount] = useState("1");
-  const [pattern, setPattern] = useState<PatternType>("none");
+  const [pattern, setPattern] = useState<PatternType>("dots");
   const [messageType, setMessageType] = useState<MessageType>("none");
-  const [patternStrength, setPatternStrength] = useState(50);
+  const [patternStrength, setPatternStrength] = useState(29);
   const [patternDarkness, setPatternDarkness] = useState(100);
   const [showSettings, setShowSettings] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
@@ -26,14 +24,15 @@ export default function Home() {
     message: string;
   } | null>(null);
 
-  const parsedLength = parseFloat(lengthCm);
+  const maxLengthCm = parseFloat(settings.rollLength) || 100;
+  const paperLengthCm = parseFloat(settings.paperLength) || 5;
   const parsedAmount = parseInt(amount, 10);
 
   function handlePrint() {
     setResult(null);
     startPrinting(async () => {
       const res = await printToiletPaper(
-        parsedLength,
+        paperLengthCm,
         parsedAmount,
         settings,
         pattern,
@@ -151,22 +150,45 @@ export default function Home() {
           <div className="flex flex-col gap-5">
             <div>
               <label
-                htmlFor="length"
+                htmlFor="rollLength"
                 className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Paper length (cm)
+                Roll length (cm)
               </label>
               <input
-                id="length"
+                id="rollLength"
                 type="text"
                 inputMode="decimal"
-                value={lengthCm}
-                onChange={(e) => setLengthCm(e.target.value)}
+                value={settings.rollLength}
+                onChange={(e) => updateSettings({ rollLength: e.target.value })}
+                placeholder="100"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
+              />
+              <p className="mt-1 text-xs text-zinc-400">
+                Max length of the paper roll
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="paperLength"
+                className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+              >
+                Paper length per sheet (cm)
+              </label>
+              <input
+                id="paperLength"
+                type="text"
+                inputMode="decimal"
+                value={settings.paperLength}
+                onChange={(e) =>
+                  updateSettings({ paperLength: e.target.value })
+                }
                 placeholder="5"
                 className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
               <p className="mt-1 text-xs text-zinc-400">
-                {`${MIN_LENGTH_CM} &ndash; ${MAX_LENGTH_CM} cm per sheet`}
+                Length of each sheet (default 5 cm)
               </p>
             </div>
 
@@ -175,7 +197,7 @@ export default function Home() {
                 htmlFor="amount"
                 className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
-                Amount
+                Number of sheets
               </label>
               <input
                 id="amount"
@@ -187,7 +209,7 @@ export default function Home() {
                 className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
               />
               <p className="mt-1 text-xs text-zinc-400">
-                Number of sheets to print (max 100)
+                Or use 3D Roll Mode to scroll
               </p>
             </div>
 
@@ -288,7 +310,7 @@ export default function Home() {
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            disabled={isPrinting || !(parsedLength > 0) || !(parsedAmount > 0)}
+            disabled={isPrinting || !(maxLengthCm > 0) || !(parsedAmount > 0)}
             className="w-full rounded-xl bg-zinc-900 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             {isPrinting ? (
@@ -334,7 +356,7 @@ export default function Home() {
         </main>
 
         <PrintPreview
-          lengthCm={parsedLength}
+          lengthCm={paperLengthCm}
           amount={parsedAmount}
           pattern={pattern}
           patternStrength={patternStrength}
