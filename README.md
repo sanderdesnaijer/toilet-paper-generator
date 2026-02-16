@@ -73,6 +73,18 @@ docs: update README with commit conventions
 feat(ui)!: redesign the generator layout
 ```
 
+## Static export (FTP / static hosting)
+
+The build produces a static site you can upload to any FTP host or static file server:
+
+```bash
+npm run build
+```
+
+Upload the contents of the **`out`** folder to your server (e.g. via FTP). The site will work at your domain root; use the same directory structure (e.g. `index.html` at root, `roll/index.html` for the roll page).
+
+**Note:** In this static build, the “Print” button does not send to a network printer (that requires a Node server). To enable printer support, run the app with a server: replace `src/app/actions.ts` with the implementation from `src/app/actions.server.ts`, remove `output: "export"` from `next.config.ts`, then `npm run build` and `npm run start`.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

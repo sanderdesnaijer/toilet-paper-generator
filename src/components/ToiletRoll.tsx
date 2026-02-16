@@ -23,6 +23,7 @@ import {
   PAPER_COLOR,
   CORE_COLOR,
   FLOOR_Y,
+  INSPIRATIONAL_QUOTES,
   type PatternType,
   type MessageType,
 } from "@/constants";
@@ -42,12 +43,41 @@ const FLOOR_SURFACE_Y = FLOOR_Y + 0.08;
 
 // ───────────────── Message Helper ─────────────────────────────────
 
-function getPreviewMessage(messageType: MessageType): string {
+function getPreviewMessage(
+  messageType: MessageType,
+  totalSheets: number = 5,
+): string {
   if (messageType === "none") return "";
   if (messageType === "wipe-counter") {
-    return "1 WIPES ALREADY! 4 WIPES AWAY FROM FINISH.";
+    const wipesAlready = 1;
+    const wipesToGo = Math.max(0, totalSheets - wipesAlready);
+    if (wipesToGo === 0) {
+      return `${wipesAlready} WIPE ALREADY! HAPPY LAST WIPE!`;
+    }
+    return `${wipesAlready} WIPES ALREADY! ${wipesToGo} WIPES AWAY FROM FINISH.`;
   }
-  return "YOU ARE DOING GREAT.";
+  const idx = Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length);
+  return INSPIRATIONAL_QUOTES[idx] ?? "YOU ARE DOING GREAT.";
+}
+
+function getSheetMessage(
+  messageType: MessageType,
+  sheetIndex: number,
+  totalSheets: number,
+): string {
+  if (messageType === "none") return "";
+  if (messageType === "wipe-counter") {
+    const wipesAlready = sheetIndex + 1;
+    const wipesToGo = Math.max(0, totalSheets - wipesAlready);
+    if (wipesToGo === 0) {
+      return `${wipesAlready} WIPES ALREADY! HAPPY LAST WIPE!`;
+    }
+    return `${wipesAlready} WIPES ALREADY! ${wipesToGo} WIPES AWAY FROM FINISH.`;
+  }
+  return (
+    INSPIRATIONAL_QUOTES[sheetIndex % INSPIRATIONAL_QUOTES.length] ??
+    "YOU ARE DOING GREAT."
+  );
 }
 
 function wrapMessageText(message: string, maxCharsPerLine: number): string[] {
@@ -76,23 +106,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function createPatternTexture(
+function createPatternCanvas(
   pattern: PatternType,
   strength: number,
   darkness: number,
-  messageType: MessageType = "none",
+  message: string = "",
   textRotationDeg: number = 0,
-): THREE.CanvasTexture | null {
-  const message = getPreviewMessage(messageType);
-  const hasMessage = message.length > 0;
-
-  if (pattern === "none" && !hasMessage) return null;
-
+): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = TEXTURE_SIZE;
   canvas.height = TEXTURE_SIZE;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
+  const ctx = canvas.getContext("2d")!;
 
   ctx.fillStyle = PAPER_COLOR;
   ctx.fillRect(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
@@ -159,7 +183,7 @@ function createPatternTexture(
     }
   }
 
-  if (hasMessage) {
+  if (message.length > 0) {
     const lines = wrapMessageText(message, 18);
     const fontSize =
       lines.length <= 2
@@ -186,12 +210,83 @@ function createPatternTexture(
     ctx.restore();
   }
 
+  return canvas;
+}
+
+function createPatternTexture(
+  pattern: PatternType,
+  strength: number,
+  darkness: number,
+  messageType: MessageType = "none",
+  textRotationDeg: number = 0,
+  totalSheets: number = 5,
+): THREE.CanvasTexture | null {
+  const message = getPreviewMessage(messageType, totalSheets);
+  if (pattern === "none" && !message) return null;
+
+  const canvas = createPatternCanvas(
+    pattern,
+    strength,
+    darkness,
+    message,
+    textRotationDeg,
+  );
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.needsUpdate = true;
   return texture;
+}
+
+// ─── Multi-sheet texture for cloth paper (different message per sheet) ──
+
+const MAX_MULTI_SHEET_SECTIONS = Math.floor(8192 / TEXTURE_SIZE);
+
+type MultiSheetResult = {
+  texture: THREE.CanvasTexture;
+  effectiveSheets: number;
+};
+
+function createMultiSheetTexture(
+  pattern: PatternType,
+  strength: number,
+  darkness: number,
+  messageType: MessageType,
+  totalSheets: number,
+  textRotationDeg: number = 180,
+): MultiSheetResult | null {
+  if (pattern === "none" && messageType === "none") return null;
+
+  const effectiveSheets = Math.max(
+    1,
+    Math.min(totalSheets, MAX_MULTI_SHEET_SECTIONS),
+  );
+
+  const canvas = document.createElement("canvas");
+  canvas.width = TEXTURE_SIZE;
+  canvas.height = TEXTURE_SIZE * effectiveSheets;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  for (let i = 0; i < effectiveSheets; i++) {
+    const message = getSheetMessage(messageType, i, totalSheets);
+    const tile = createPatternCanvas(
+      pattern,
+      strength,
+      darkness,
+      message,
+      textRotationDeg,
+    );
+    ctx.drawImage(tile, 0, i * TEXTURE_SIZE);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.needsUpdate = true;
+  return { texture, effectiveSheets };
 }
 
 // ───────────────── Radius Calculation ─────────────────────────────
@@ -216,33 +311,51 @@ function ClothPaperMesh({
   patternStrength,
   patternDarkness,
   messageType = "none",
+  totalSheets = 5,
+  paperLengthCm = DEFAULT_PAPER_LENGTH_CM,
 }: {
   clothRef: React.RefObject<ClothSimulation>;
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
   messageType?: MessageType;
+  totalSheets?: number;
+  paperLengthCm?: number;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
 
-  const texture = useMemo(
-    () =>
-      createPatternTexture(
+  const hasMessages = messageType !== "none";
+
+  const textureData = useMemo(() => {
+    if (hasMessages) {
+      const result = createMultiSheetTexture(
         pattern,
         patternStrength,
         patternDarkness,
         messageType,
+        totalSheets,
         180,
-      ),
-    [pattern, patternStrength, patternDarkness, messageType],
-  );
+      );
+      if (result) {
+        return { texture: result.texture, effectiveSheets: result.effectiveSheets, isMultiSheet: true };
+      }
+    }
+    const tex = createPatternTexture(
+      pattern,
+      patternStrength,
+      patternDarkness,
+      "none",
+      180,
+    );
+    return tex ? { texture: tex, effectiveSheets: 1, isMultiSheet: false } : null;
+  }, [pattern, patternStrength, patternDarkness, messageType, totalSheets, hasMessages]);
 
   useEffect(() => {
     return () => {
-      texture?.dispose();
+      textureData?.texture.dispose();
     };
-  }, [texture]);
+  }, [textureData]);
 
   // Pre-allocate geometry with fixed-size buffers once
   const geo = useMemo(() => {
@@ -310,11 +423,22 @@ function ClothPaperMesh({
     geo.computeVertexNormals();
 
     if (matRef.current) {
-      if (texture) {
-        if (matRef.current.map !== texture) {
-          matRef.current.map = texture;
+      if (textureData) {
+        if (matRef.current.map !== textureData.texture) {
+          matRef.current.map = textureData.texture;
           matRef.current.color.set("#ffffff");
-          texture.repeat.set(1, 1);
+          if (textureData.isMultiSheet) {
+            // Map the cloth UV V to the multi-sheet texture:
+            // Cloth V per sheet = paperLengthCm / ROLL_WIDTH
+            // Full texture covers effectiveSheets sheets
+            // repeat.y scales cloth V so the full texture maps to all sheets
+            const repeatY =
+              ROLL_WIDTH /
+              (textureData.effectiveSheets * paperLengthCm);
+            textureData.texture.repeat.set(1, repeatY);
+          } else {
+            textureData.texture.repeat.set(1, 1);
+          }
           matRef.current.needsUpdate = true;
         }
       } else {
@@ -351,6 +475,7 @@ function Roll3D({
   patternStrength,
   patternDarkness,
   messageType = "none",
+  totalSheets = 5,
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
   maxLengthCm: number;
@@ -359,6 +484,7 @@ function Roll3D({
   patternStrength: number;
   patternDarkness: number;
   messageType?: MessageType;
+  totalSheets?: number;
 }) {
   const shellMeshRef = useRef<THREE.Mesh>(null);
   const shellMatRef = useRef<THREE.MeshStandardMaterial>(null);
@@ -374,8 +500,9 @@ function Roll3D({
         patternDarkness,
         messageType,
         -90,
+        totalSheets,
       ),
-    [pattern, patternStrength, patternDarkness, messageType],
+    [pattern, patternStrength, patternDarkness, messageType, totalSheets],
   );
 
   useEffect(() => {
@@ -670,6 +797,8 @@ function Scene({
   patternStrength = DEFAULT_PATTERN_STRENGTH,
   patternDarkness = DEFAULT_PATTERN_DARKNESS,
   messageType = "none",
+  totalSheets = 5,
+  paperLengthCm = DEFAULT_PAPER_LENGTH_CM,
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
   cameraRef: React.RefObject<CameraState>;
@@ -686,6 +815,8 @@ function Scene({
   patternStrength?: number;
   patternDarkness?: number;
   messageType?: MessageType;
+  totalSheets?: number;
+  paperLengthCm?: number;
 }) {
   const radiusRef = useRef(OUTER_RADIUS);
   const clothRef = useRef(new ClothSimulation({ floorY: FLOOR_SURFACE_Y }));
@@ -824,6 +955,7 @@ function Scene({
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
             messageType={messageType}
+            totalSheets={totalSheets}
           />
         </RigidBody>
       </Physics>
@@ -835,6 +967,8 @@ function Scene({
         patternStrength={patternStrength}
         patternDarkness={patternDarkness}
         messageType={messageType}
+        totalSheets={totalSheets}
+        paperLengthCm={paperLengthCm}
       />
 
       <CameraController cameraRef={cameraRef} />
@@ -991,6 +1125,8 @@ export function ToiletRoll({
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
 
+  const totalSheets =
+    paperLengthCm > 0 ? Math.floor(maxLengthCm / paperLengthCm) : 1;
   const sheetCount =
     paperLengthCm > 0
       ? Math.floor(rollState.unrolledLength / paperLengthCm)
@@ -1029,6 +1165,8 @@ export function ToiletRoll({
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
             messageType={messageType}
+            totalSheets={totalSheets}
+            paperLengthCm={paperLengthCm}
           />
         </Canvas>
 

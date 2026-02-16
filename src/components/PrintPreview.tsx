@@ -1,6 +1,11 @@
 "use client";
 
-import { type PatternType, type MessageType } from "@/constants";
+import { useMemo } from "react";
+import {
+  INSPIRATIONAL_QUOTES,
+  type PatternType,
+  type MessageType,
+} from "@/constants";
 
 type PrintPreviewProps = {
   lengthCm: number;
@@ -15,7 +20,11 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function getPreviewMessage(messageType: MessageType, amount: number): string {
+function getPreviewMessage(
+  messageType: MessageType,
+  amount: number,
+  quoteIndex: number,
+): string {
   if (messageType === "none") {
     return "";
   }
@@ -23,11 +32,14 @@ function getPreviewMessage(messageType: MessageType, amount: number): string {
     const wipesAlready = 1;
     const wipesToGo = Math.max(0, amount - wipesAlready);
     if (wipesToGo === 0) {
-      return `${wipesAlready} WIPES ALREADY! HAPPY LAST WIPE!`;
+      return `${wipesAlready} WIPE ALREADY! HAPPY LAST WIPE!`;
     }
     return `${wipesAlready} WIPES ALREADY! ${wipesToGo} WIPES AWAY FROM FINISH.`;
   }
-  return "YOU ARE DOING GREAT.";
+  return (
+    INSPIRATIONAL_QUOTES[quoteIndex % INSPIRATIONAL_QUOTES.length] ??
+    "YOU ARE DOING GREAT."
+  );
 }
 
 function wrapMessage(message: string, maxCharsPerLine: number): string[] {
@@ -197,7 +209,12 @@ export function PrintPreview({
   const safeLength = Number.isFinite(lengthCm) && lengthCm > 0 ? lengthCm : 5;
   const safeAmount = Number.isFinite(amount) && amount > 0 ? amount : 1;
   const previewHeight = clamp(Math.round(safeLength * 14), 180, 420);
-  const message = getPreviewMessage(messageType, safeAmount);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const quoteIndex = useMemo(
+    () => Math.floor(Math.random() * INSPIRATIONAL_QUOTES.length),
+    [messageType],
+  );
+  const message = getPreviewMessage(messageType, safeAmount, quoteIndex);
   const messageLines = wrapMessage(message, 22);
 
   const fontSize =

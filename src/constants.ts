@@ -55,6 +55,29 @@ export const PAPER_COLOR = "#f5f0e8";
 export const CORE_COLOR = "#8b7355";
 export const FLOOR_Y = -3.5;
 
+// ─── Inspirational quotes ────────────────────────────────────────────
+
+export const INSPIRATIONAL_QUOTES = [
+  "Progress happens when you release what you no longer need.",
+  "Small consistent efforts lead to big results.",
+  "If you can sit through this, you can sit through anything.",
+  "Clarity often arrives when you finally pause.",
+  "Even the busiest people must stop and reset.",
+  "Some of your best ideas are waiting for you to slow down.",
+  "No matter how your day started, you can always make a clean finish.",
+  "Every shipped feature once started as a messy prototype.",
+  "Done is better than perfect. Ship it.",
+  "Progress isn't glamorous. It's small fixes, every day.",
+  "Nobody sees the bugs you fixed at 2am. But they matter.",
+  "If it works, you're allowed to be proud.",
+  "Most people never start. You did.",
+  "One small improvement today beats endless planning.",
+  "PROGRESS OVER PERFECTION.",
+  "KEEP GOING, YOU ARE CLOSER THAN YOU THINK.",
+  "TODAY IS FULL OF POSSIBILITIES.",
+  "SMALL WINS BUILD BIG CHANGES.",
+];
+
 // ─── Cloth simulation (Verlet ladder) ───────────────────────────────
 
 export const CLOTH_SEGMENT_LENGTH = 1.0;
