@@ -203,7 +203,7 @@ export default function RollPage() {
       {/* Top nav */}
       <nav className="relative z-30 flex w-full items-center justify-between px-4 py-2 lg:mb-4 lg:max-w-5xl">
         <Link
-          href="/"
+          href="/print"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
         >
           <svg
@@ -222,7 +222,7 @@ export default function RollPage() {
           Classic mode
         </Link>
         <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-          3D Roll Mode
+          3D Toilet Paper Generator
         </h1>
         <button
           onClick={() => setShowSettings(!showSettings)}

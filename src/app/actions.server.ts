@@ -8,6 +8,10 @@ import {
   DOTS_PER_CM,
   CHUNK_HEIGHT,
   INSPIRATIONAL_QUOTES,
+  DEFAULT_PATTERN_STRENGTH,
+  DEFAULT_PATTERN_DARKNESS,
+  PATTERN_MIN,
+  PATTERN_MAX,
   type PatternType,
   type MessageType,
 } from "../constants";
@@ -125,7 +129,7 @@ function isPatternPixel(
   y: number,
   strength: number,
 ): boolean {
-  const s = Math.max(1, Math.min(100, strength));
+  const s = Math.max(PATTERN_MIN, Math.min(PATTERN_MAX, strength));
 
   switch (pattern) {
     case "dots": {
@@ -479,8 +483,8 @@ export async function printToiletPaper(
   amount: number,
   settings: PrinterSettings,
   pattern: PatternType = "none",
-  patternStrength: number = 50,
-  patternDarkness: number = 100,
+  patternStrength: number = DEFAULT_PATTERN_STRENGTH,
+  patternDarkness: number = DEFAULT_PATTERN_DARKNESS,
   messageType: MessageType = "none",
 ): Promise<{ success: boolean; message: string }> {
   try {

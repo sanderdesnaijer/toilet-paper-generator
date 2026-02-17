@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   INSPIRATIONAL_QUOTES,
+  DEFAULT_PAPER_LENGTH_CM,
   type PatternType,
   type MessageType,
 } from "@/constants";
@@ -206,7 +207,10 @@ export function PrintPreview({
   patternDarkness,
   messageType,
 }: PrintPreviewProps) {
-  const safeLength = Number.isFinite(lengthCm) && lengthCm > 0 ? lengthCm : 5;
+  const safeLength =
+    Number.isFinite(lengthCm) && lengthCm > 0
+      ? lengthCm
+      : DEFAULT_PAPER_LENGTH_CM;
   const safeAmount = Number.isFinite(amount) && amount > 0 ? amount : 1;
   const previewHeight = clamp(Math.round(safeLength * 14), 180, 420);
   const [quoteIndex] = useState(() =>
