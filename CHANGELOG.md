@@ -1,3 +1,10 @@
+## [1.1.10](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.9...v1.1.10) (2026-02-17)
+
+
+### Bug Fixes
+
+* update logo ([d4189a5](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/d4189a55050a1066143564c87e059cebbfbf8077))
+
 ## [1.1.9](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.8...v1.1.9) (2026-02-17)
 
 
