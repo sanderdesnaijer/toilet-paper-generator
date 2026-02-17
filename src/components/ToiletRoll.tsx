@@ -35,6 +35,20 @@ type RollPhysicsState = {
   isDragging: boolean;
 };
 
+function isUsableRigidBody(
+  body: RapierRigidBody | null,
+): body is RapierRigidBody {
+  if (!body) return false;
+  try {
+    // Cheapest possible Rapier read — if the underlying WASM handle has
+    // been freed (Strict Mode remount / HMR), this will throw.
+    body.translation();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ───────────────────────────── Constants ─────────────────────────────
 
 const TEXTURE_SIZE = 512;
@@ -854,95 +868,103 @@ function Scene({
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
     const body = rollBodyRef.current;
-    if (!body) return;
+    if (!isUsableRigidBody(body)) return;
 
     const drag = dragRef.current;
     const s = stateRef.current;
     if (!s) return;
+    try {
+      // ── Drag controller — gentle torque from pointer movement ──
+      if (drag.isDragging && drag.deltaY !== 0) {
+        body.wakeUp();
+        const currentAngVel = body.angvel();
+        const torqueImpulse = drag.deltaY * 0.15;
+        body.setAngvel(
+          { x: currentAngVel.x + torqueImpulse, y: 0, z: 0 },
+          true,
+        );
+        drag.deltaY = 0;
+      }
 
-    // ── Drag controller — gentle torque from pointer movement ──
-    if (drag.isDragging && drag.deltaY !== 0) {
-      body.wakeUp();
-      const currentAngVel = body.angvel();
-      const torqueImpulse = drag.deltaY * 0.15;
-      body.setAngvel({ x: currentAngVel.x + torqueImpulse, y: 0, z: 0 }, true);
-      drag.deltaY = 0;
-    }
+      // ── Track rotation from Rapier body ──
+      const angVel = body.angvel();
+      const spinRate = angVel.x;
+      s.angularVelocity = spinRate;
+      s.totalRotation += spinRate * delta;
+      s.isDragging = drag.isDragging;
 
-    // ── Track rotation from Rapier body ──
-    const angVel = body.angvel();
-    const spinRate = angVel.x;
-    s.angularVelocity = spinRate;
-    s.totalRotation += spinRate * delta;
-    s.isDragging = drag.isDragging;
-
-    // ── Convert rotation to unrolled length ──
-    const currentRadius = calculateRadius(s.unrolledLength, maxLengthCm);
-    const lengthDelta = spinRate * currentRadius * delta;
-    s.unrolledLength = Math.max(
-      0,
-      Math.min(maxLengthCm, s.unrolledLength + lengthDelta),
-    );
-
-    // ── Compute paper exit point from roll body ──
-    const rollTranslation = body.translation();
-    const rollRotation = body.rotation();
-
-    _rollPos.set(rollTranslation.x, rollTranslation.y, rollTranslation.z);
-
-    // Extract the clean rotation angle around the X axis from the quaternion.
-    // This ignores any tiny Y/Z perturbations from the physics solver that
-    // caused the exit point to jitter left-to-right when applying the full
-    // quaternion.
-    const exitAngle = 2 * Math.atan2(rollRotation.x, rollRotation.w);
-    _exitDir.set(0, -Math.cos(exitAngle), -Math.sin(exitAngle));
-    _exitCenter.copy(_exitDir).multiplyScalar(currentRadius).add(_rollPos);
-
-    // Roll axis is always world-X (body only rotates around X), so the
-    // left/right span direction is constant.
-    const halfW = ROLL_WIDTH / 2;
-    _rightDir.set(1, 0, 0);
-    _exitLeft.copy(_exitCenter).addScaledVector(_rightDir, -halfW);
-    _exitRight.copy(_exitCenter).addScaledVector(_rightDir, halfW);
-
-    // ── Spawn/despawn cloth rows based on unrolled length ──
-    const cloth = clothRef.current;
-    const targetRows = Math.min(
-      CLOTH_MAX_ACTIVE_ROWS,
-      Math.max(1, Math.floor(s.unrolledLength / 1.0) + 1),
-    );
-
-    // Spawn rows
-    while (cloth.rowCount < targetRows && s.unrolledLength > 0.5) {
-      const before = cloth.rowCount;
-      cloth.spawnRow(
-        { x: _exitLeft.x, y: _exitLeft.y, z: _exitLeft.z },
-        { x: _exitRight.x, y: _exitRight.y, z: _exitRight.z },
+      // ── Convert rotation to unrolled length ──
+      const currentRadius = calculateRadius(s.unrolledLength, maxLengthCm);
+      const lengthDelta = spinRate * currentRadius * delta;
+      s.unrolledLength = Math.max(
+        0,
+        Math.min(maxLengthCm, s.unrolledLength + lengthDelta),
       );
-      if (cloth.rowCount === before) break;
-    }
 
-    // Despawn rows when rolling back
-    while (cloth.rowCount > targetRows && cloth.rowCount > 1) {
-      cloth.despawnRow();
-    }
+      // ── Compute paper exit point from roll body ──
+      const rollTranslation = body.translation();
+      const rollRotation = body.rotation();
 
-    // If fully rolled back, reset
-    if (s.unrolledLength < 0.5) {
-      cloth.reset();
-    }
+      _rollPos.set(rollTranslation.x, rollTranslation.y, rollTranslation.z);
 
-    // ── Step cloth simulation ──
-    if (cloth.rowCount > 0) {
-      cloth.update(
-        delta,
-        { x: _exitLeft.x, y: _exitLeft.y, z: _exitLeft.z },
-        { x: _exitRight.x, y: _exitRight.y, z: _exitRight.z },
-        spinRate,
+      // Extract the clean rotation angle around the X axis from the quaternion.
+      // This ignores any tiny Y/Z perturbations from the physics solver that
+      // caused the exit point to jitter left-to-right when applying the full
+      // quaternion.
+      const exitAngle = 2 * Math.atan2(rollRotation.x, rollRotation.w);
+      _exitDir.set(0, -Math.cos(exitAngle), -Math.sin(exitAngle));
+      _exitCenter.copy(_exitDir).multiplyScalar(currentRadius).add(_rollPos);
+
+      // Roll axis is always world-X (body only rotates around X), so the
+      // left/right span direction is constant.
+      const halfW = ROLL_WIDTH / 2;
+      _rightDir.set(1, 0, 0);
+      _exitLeft.copy(_exitCenter).addScaledVector(_rightDir, -halfW);
+      _exitRight.copy(_exitCenter).addScaledVector(_rightDir, halfW);
+
+      // ── Spawn/despawn cloth rows based on unrolled length ──
+      const cloth = clothRef.current;
+      const targetRows = Math.min(
+        CLOTH_MAX_ACTIVE_ROWS,
+        Math.max(1, Math.floor(s.unrolledLength / 1.0) + 1),
       );
-    }
 
-    onUpdateRef.current({ ...s });
+      // Spawn rows
+      while (cloth.rowCount < targetRows && s.unrolledLength > 0.5) {
+        const before = cloth.rowCount;
+        cloth.spawnRow(
+          { x: _exitLeft.x, y: _exitLeft.y, z: _exitLeft.z },
+          { x: _exitRight.x, y: _exitRight.y, z: _exitRight.z },
+        );
+        if (cloth.rowCount === before) break;
+      }
+
+      // Despawn rows when rolling back
+      while (cloth.rowCount > targetRows && cloth.rowCount > 1) {
+        cloth.despawnRow();
+      }
+
+      // If fully rolled back, reset
+      if (s.unrolledLength < 0.5) {
+        cloth.reset();
+      }
+
+      // ── Step cloth simulation ──
+      if (cloth.rowCount > 0) {
+        cloth.update(
+          delta,
+          { x: _exitLeft.x, y: _exitLeft.y, z: _exitLeft.z },
+          { x: _exitRight.x, y: _exitRight.y, z: _exitRight.z },
+          spinRate,
+        );
+      }
+
+      onUpdateRef.current({ ...s });
+    } catch {
+      // In dev (Strict Mode + HMR), Rapier handles can become stale for a frame.
+      // Swallow and let the next frame continue with fresh refs.
+      return;
+    }
   });
 
   return (
@@ -1172,8 +1194,6 @@ export function ToiletRoll({
         style={{ touchAction: "none" }}
       >
         <Canvas
-          dpr={[1, 1.5]}
-          gl={{ antialias: false, powerPreference: "low-power" }}
           camera={{
             fov: 35,
             near: 0.1,
