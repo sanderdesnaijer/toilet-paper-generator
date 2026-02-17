@@ -1,3 +1,10 @@
+## [1.1.12](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.11...v1.1.12) (2026-02-17)
+
+
+### Bug Fixes
+
+* reduce flickering while scrolling ([e4ca83e](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/e4ca83ebeba29b96d36ff483a2888922f9fd43bf))
+
 ## [1.1.11](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.10...v1.1.11) (2026-02-17)
 
 
