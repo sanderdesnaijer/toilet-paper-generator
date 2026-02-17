@@ -84,7 +84,7 @@ export default function RollPage() {
           placeholder={String(MAX_LENGTH_CM)}
           className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
           Max length of the paper roll
         </p>
       </div>
@@ -105,7 +105,7 @@ export default function RollPage() {
           placeholder={String(DEFAULT_PAPER_LENGTH_CM)}
           className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg font-medium tabular-nums text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
           Scroll the roll to set the number of sheets
         </p>
       </div>
@@ -140,7 +140,7 @@ export default function RollPage() {
               className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
               <span>Density</span>
-              <span className="text-xs font-normal text-zinc-400">
+              <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
                 {patternStrength}%
               </span>
             </label>
@@ -160,7 +160,7 @@ export default function RollPage() {
               className="mb-1.5 flex items-center justify-between text-sm font-medium text-zinc-700 dark:text-zinc-300"
             >
               <span>Darkness</span>
-              <span className="text-xs font-normal text-zinc-400">
+              <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
                 {patternDarkness}%
               </span>
             </label>
@@ -199,12 +199,13 @@ export default function RollPage() {
   );
 
   return (
-    <div className="flex min-h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:min-h-screen lg:items-center lg:p-4">
+    <>
+      <div className="flex h-dvh min-h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:h-auto lg:min-h-screen lg:items-center lg:p-4">
       {/* Top nav */}
       <nav className="relative z-30 flex w-full items-center justify-between px-4 py-2 lg:mb-4 lg:max-w-5xl">
         <Link
           href="/print"
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +227,7 @@ export default function RollPage() {
         </h1>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+          className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           title="Printer settings"
         >
           <svg
@@ -256,7 +257,7 @@ export default function RollPage() {
             <div className="flex-1">
               <label
                 htmlFor="printerIp"
-                className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
+                className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-300"
               >
                 Printer IP Address
               </label>
@@ -272,7 +273,7 @@ export default function RollPage() {
             <div className="w-32">
               <label
                 htmlFor="printerPort"
-                className="mb-1 block text-xs font-medium text-zinc-500 dark:text-zinc-400"
+                className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-300"
               >
                 Port
               </label>
@@ -494,7 +495,9 @@ export default function RollPage() {
         </div>
       )}
 
-      <section className="mx-4 mt-20 mb-24 w-auto rounded-2xl border border-zinc-200 bg-white/90 p-6 text-zinc-700 shadow-sm backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300 lg:mx-auto lg:mt-8 lg:mb-0 lg:w-full lg:max-w-5xl">
+      </div>
+
+      <section className="mx-4 mt-6 mb-24 w-auto rounded-2xl border border-zinc-200 bg-white/90 p-6 text-zinc-700 shadow-sm backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300 lg:mx-auto lg:mt-8 lg:mb-4 lg:w-full lg:max-w-5xl">
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
           Three.js Physics Demo with Real ESC/POS Thermal Printer Output
         </h2>
@@ -583,6 +586,6 @@ export default function RollPage() {
           full browser → server → printer workflow.
         </p>
       </section>
-    </div>
+    </>
   );
 }

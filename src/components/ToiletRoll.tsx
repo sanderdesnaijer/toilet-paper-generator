@@ -2,7 +2,6 @@
 
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
 import * as THREE from "three";
 import {
   Physics,
@@ -40,6 +39,7 @@ type RollPhysicsState = {
 
 const TEXTURE_SIZE = 512;
 const FLOOR_SURFACE_Y = FLOOR_Y + 0.08;
+const GEOMETRY_UPDATE_STEP_CM = 0.08;
 
 // ───────────────── Message Helper ─────────────────────────────────
 
@@ -324,6 +324,7 @@ function ClothPaperMesh({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
+  const normalFrameRef = useRef(0);
 
   const hasMessages = messageType !== "none";
 
@@ -420,7 +421,11 @@ function ClothPaperMesh({
     idxAttr.needsUpdate = true;
 
     geo.setDrawRange(0, indices.length);
-    geo.computeVertexNormals();
+    // Computing normals every frame is expensive; update every few frames.
+    normalFrameRef.current += 1;
+    if (normalFrameRef.current % 3 === 0) {
+      geo.computeVertexNormals();
+    }
 
     if (matRef.current) {
       if (textureData) {
@@ -519,9 +524,12 @@ function Roll3D({
     onRadiusChange?.(currentRadius);
 
     const hasPaper = currentRadius > CORE_RADIUS + 0.05;
-    const radiusChanged = lastRadiusRef.current !== currentRadius;
+    const quantizedRadius =
+      Math.round(currentRadius / GEOMETRY_UPDATE_STEP_CM) *
+      GEOMETRY_UPDATE_STEP_CM;
+    const radiusChanged = lastRadiusRef.current !== quantizedRadius;
     if (radiusChanged) {
-      lastRadiusRef.current = currentRadius;
+      lastRadiusRef.current = quantizedRadius;
     }
 
     if (shellMeshRef.current) {
@@ -529,8 +537,8 @@ function Roll3D({
       if (hasPaper && radiusChanged) {
         const old = shellMeshRef.current.geometry;
         shellMeshRef.current.geometry = new THREE.CylinderGeometry(
-          currentRadius,
-          currentRadius,
+          quantizedRadius,
+          quantizedRadius,
           ROLL_WIDTH,
           64,
           1,
@@ -567,7 +575,7 @@ function Roll3D({
         const old = capRightRef.current.geometry;
         capRightRef.current.geometry = new THREE.RingGeometry(
           CORE_RADIUS,
-          currentRadius,
+          quantizedRadius,
           64,
         );
         old.dispose();
@@ -579,7 +587,7 @@ function Roll3D({
         const old = capLeftRef.current.geometry;
         capLeftRef.current.geometry = new THREE.RingGeometry(
           CORE_RADIUS,
-          currentRadius,
+          quantizedRadius,
           64,
         );
         old.dispose();
@@ -671,8 +679,6 @@ function CameraController({
 }) {
   const { camera } = useThree();
 
-  const lastLogRef = useRef(0);
-
   useFrame(() => {
     const s = cameraRef.current;
     if (!s) return;
@@ -684,14 +690,6 @@ function CameraController({
     camera.position.set(x + s.targetX, y + s.targetY, z + s.targetZ);
     camera.lookAt(s.targetX, s.targetY, s.targetZ);
 
-    const now = Date.now();
-    if (now - lastLogRef.current > 2000) {
-      lastLogRef.current = now;
-      console.log(
-        `Camera position: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`,
-        `| CameraState: theta=${s.theta.toFixed(4)}, phi=${s.phi.toFixed(4)}, radius=${s.radius.toFixed(2)}, target=(${s.targetX.toFixed(2)}, ${s.targetY.toFixed(2)}, ${s.targetZ.toFixed(2)})`,
-      );
-    }
   });
 
   return null;
@@ -927,6 +925,10 @@ function Scene({
   return (
     <>
       <ambientLight intensity={0.5} />
+      <hemisphereLight
+        args={["#f4f4f5", "#27272a", 0.35]}
+        position={[0, 20, 0]}
+      />
       <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
       <directionalLight position={[-3, 2, -2]} intensity={0.3} />
 
@@ -972,7 +974,6 @@ function Scene({
       />
 
       <CameraController cameraRef={cameraRef} />
-      <Environment preset="studio" />
     </>
   );
 }

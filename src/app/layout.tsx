@@ -88,7 +88,9 @@ export default function RootLayout({
             __html: JSON.stringify(softwareAppJsonLd),
           }}
         />
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider>
+          <main>{children}</main>
+        </SettingsProvider>
       </body>
     </html>
   );

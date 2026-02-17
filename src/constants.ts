@@ -13,7 +13,7 @@ export type MessageType = "none" | "wipe-counter" | "inspirational-quote";
 // ─── Roll length ─────────────────────────────────────────────────────
 
 /** Maximum roll length in cm */
-export const MAX_LENGTH_CM = 100;
+export const MAX_LENGTH_CM = 250;
 
 /** Minimum roll length in cm */
 export const MIN_LENGTH_CM = 1;
@@ -24,7 +24,7 @@ export const DEFAULT_PAPER_LENGTH_CM = 5;
 // ─── Pattern defaults ────────────────────────────────────────────────
 
 export const DEFAULT_PATTERN_STRENGTH = 29;
-export const DEFAULT_PATTERN_DARKNESS = 100;
+export const DEFAULT_PATTERN_DARKNESS = 35;
 export const PATTERN_MIN = 1;
 export const PATTERN_MAX = 100;
 
