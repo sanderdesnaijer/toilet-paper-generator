@@ -64,7 +64,7 @@ Reference from label-printer-poc's approach in [actions.ts](src/app/actions.ts) 
 
 ### 2. Settings Context — `src/contexts/SettingsContext.tsx`
 
-- Store `printerIp` (default `"192.168.1.56"`) and `printerPort` (default `"9100"`) in localStorage
+- Store `printerIp` (default `"192.168.1.76"`) and `printerPort` (default `"9100"`) in localStorage
 - React Context + Provider wrapping the app in [layout.tsx](src/app/layout.tsx)
 - Togglable settings panel accessible from the main page (gear icon or expandable section)
 

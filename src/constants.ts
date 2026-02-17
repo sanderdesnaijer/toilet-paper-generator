@@ -30,8 +30,10 @@ export const PATTERN_MAX = 100;
 
 // ─── Printer defaults ───────────────────────────────────────────────
 
-export const DEFAULT_PRINTER_IP = "192.168.1.56";
-export const DEFAULT_PRINTER_PORT = "9100";
+export const DEFAULT_PRINTER_IP =
+  process.env.NEXT_PUBLIC_DEFAULT_PRINTER_IP ?? "192.168.1.76";
+export const DEFAULT_PRINTER_PORT =
+  process.env.NEXT_PUBLIC_DEFAULT_PRINTER_PORT ?? "9100";
 
 // ─── Printer / ESC-POS constants ─────────────────────────────────────
 
