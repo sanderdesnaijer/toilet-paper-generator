@@ -13,7 +13,7 @@ export type MessageType = "none" | "wipe-counter" | "inspirational-quote";
 // ─── Roll length ─────────────────────────────────────────────────────
 
 /** Maximum roll length in cm */
-export const MAX_LENGTH_CM = 250;
+export const MAX_LENGTH_CM = 100;
 
 /** Minimum roll length in cm */
 export const MIN_LENGTH_CM = 1;

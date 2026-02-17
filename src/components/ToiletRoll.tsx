@@ -183,6 +183,18 @@ function createPatternCanvas(
     }
   }
 
+  // Draw a subtle perforation guide so each sheet break is visible.
+  const perforationY = TEXTURE_SIZE - Math.round(TEXTURE_SIZE * 0.08);
+  ctx.save();
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
+  ctx.setLineDash([6, 6]);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(18, perforationY);
+  ctx.lineTo(TEXTURE_SIZE - 18, perforationY);
+  ctx.stroke();
+  ctx.restore();
+
   if (message.length > 0) {
     const lines = wrapMessageText(message, 18);
     const fontSize =
@@ -222,8 +234,6 @@ function createPatternTexture(
   totalSheets: number = 5,
 ): THREE.CanvasTexture | null {
   const message = getPreviewMessage(messageType, totalSheets);
-  if (pattern === "none" && !message) return null;
-
   const canvas = createPatternCanvas(
     pattern,
     strength,
@@ -256,8 +266,6 @@ function createMultiSheetTexture(
   totalSheets: number,
   textRotationDeg: number = 180,
 ): MultiSheetResult | null {
-  if (pattern === "none" && messageType === "none") return null;
-
   const effectiveSheets = Math.max(
     1,
     Math.min(totalSheets, MAX_MULTI_SHEET_SECTIONS),
@@ -339,7 +347,11 @@ function ClothPaperMesh({
         180,
       );
       if (result) {
-        return { texture: result.texture, effectiveSheets: result.effectiveSheets, isMultiSheet: true };
+        return {
+          texture: result.texture,
+          effectiveSheets: result.effectiveSheets,
+          isMultiSheet: true,
+        };
       }
     }
     const tex = createPatternTexture(
@@ -349,8 +361,17 @@ function ClothPaperMesh({
       "none",
       180,
     );
-    return tex ? { texture: tex, effectiveSheets: 1, isMultiSheet: false } : null;
-  }, [pattern, patternStrength, patternDarkness, messageType, totalSheets, hasMessages]);
+    return tex
+      ? { texture: tex, effectiveSheets: 1, isMultiSheet: false }
+      : null;
+  }, [
+    pattern,
+    patternStrength,
+    patternDarkness,
+    messageType,
+    totalSheets,
+    hasMessages,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -438,8 +459,7 @@ function ClothPaperMesh({
             // Full texture covers effectiveSheets sheets
             // repeat.y scales cloth V so the full texture maps to all sheets
             const repeatY =
-              ROLL_WIDTH /
-              (textureData.effectiveSheets * paperLengthCm);
+              ROLL_WIDTH / (textureData.effectiveSheets * paperLengthCm);
             textureData.texture.repeat.set(1, repeatY);
           } else {
             textureData.texture.repeat.set(1, 1);
@@ -497,18 +517,22 @@ function Roll3D({
   const capLeftRef = useRef<THREE.Mesh>(null);
   const lastRadiusRef = useRef<number>(-1);
 
-  const rollTexture = useMemo(
-    () =>
-      createPatternTexture(
-        pattern,
-        patternStrength,
-        patternDarkness,
-        messageType,
-        -90,
-        totalSheets,
-      ),
-    [pattern, patternStrength, patternDarkness, messageType, totalSheets],
-  );
+  const rollTexture = useMemo(() => {
+    const texture = createPatternTexture(
+      pattern,
+      patternStrength,
+      patternDarkness,
+      messageType,
+      90,
+      totalSheets,
+    );
+    if (texture) {
+      texture.center.set(0.5, 0.5);
+      texture.rotation = Math.PI / 2;
+      texture.needsUpdate = true;
+    }
+    return texture;
+  }, [pattern, patternStrength, patternDarkness, messageType, totalSheets]);
 
   useEffect(() => {
     return () => {
@@ -689,7 +713,6 @@ function CameraController({
 
     camera.position.set(x + s.targetX, y + s.targetY, z + s.targetZ);
     camera.lookAt(s.targetX, s.targetY, s.targetZ);
-
   });
 
   return null;
@@ -791,7 +814,7 @@ function Scene({
   dragRef,
   maxLengthCm,
   onUpdate,
-  pattern = "dots",
+  pattern = "none",
   patternStrength = DEFAULT_PATTERN_STRENGTH,
   patternDarkness = DEFAULT_PATTERN_DARKNESS,
   messageType = "none",
@@ -999,7 +1022,7 @@ export function ToiletRoll({
   externalLength,
   maxLengthCm = MAX_LENGTH_CM,
   paperLengthCm = DEFAULT_PAPER_LENGTH_CM,
-  pattern = "dots",
+  pattern = "none",
   patternStrength = DEFAULT_PATTERN_STRENGTH,
   patternDarkness = DEFAULT_PATTERN_DARKNESS,
   messageType = "none",
@@ -1187,9 +1210,13 @@ export function ToiletRoll({
         <div className="rounded-lg bg-black/60 px-3 py-1.5 text-2xl font-bold tabular-nums text-white backdrop-blur-sm">
           {sheetCount} sheet{sheetCount !== 1 ? "s" : ""}
         </div>
-        <div className="rounded-lg bg-black/40 px-3 py-1 text-xs text-white/80 backdrop-blur-sm">
+        <div className="rounded-lg bg-black/65 px-3 py-1 text-sm text-white backdrop-blur-sm">
           {rollState.unrolledLength.toFixed(1)} cm &middot; {percentage}%
           unrolled
+        </div>
+        <div className="rounded-lg bg-black/70 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
+          Roll: {maxLengthCm.toFixed(1)} cm &middot; Sheet:{" "}
+          {paperLengthCm.toFixed(1)} cm
         </div>
       </div>
 

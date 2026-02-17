@@ -22,7 +22,7 @@ export default function HomePage() {
   const { settings, updateSettings } = useSettings();
   const [lengthCm, setLengthCm] = useState(0);
   const [sheetCount, setSheetCount] = useState(0);
-  const [pattern, setPattern] = useState<PatternType>("dots");
+  const [pattern, setPattern] = useState<PatternType>("none");
   const [messageType, setMessageType] = useState<MessageType>("none");
   const [patternStrength, setPatternStrength] = useState(
     DEFAULT_PATTERN_STRENGTH,

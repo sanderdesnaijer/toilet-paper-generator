@@ -21,7 +21,7 @@ import {
 export default function PrintPage() {
   const { settings, updateSettings } = useSettings();
   const [amount, setAmount] = useState("1");
-  const [pattern, setPattern] = useState<PatternType>("dots");
+  const [pattern, setPattern] = useState<PatternType>("none");
   const [messageType, setMessageType] = useState<MessageType>("none");
   const [patternStrength, setPatternStrength] = useState(
     DEFAULT_PATTERN_STRENGTH,

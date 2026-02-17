@@ -3,10 +3,8 @@
 import {
   createContext,
   useContext,
-  useState,
-  useEffect,
   useCallback,
-  useRef,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -51,23 +49,76 @@ function loadSettings(): PrinterSettings {
   return DEFAULT_SETTINGS;
 }
 
+const settingsListeners = new Set<() => void>();
+let settingsSnapshot: PrinterSettings = DEFAULT_SETTINGS;
+let hasLoadedClientSnapshot = false;
+
+function ensureClientSnapshotLoaded() {
+  if (typeof window === "undefined" || hasLoadedClientSnapshot) {
+    return;
+  }
+  settingsSnapshot = loadSettings();
+  hasLoadedClientSnapshot = true;
+}
+
+function emitSettingsChange() {
+  for (const listener of settingsListeners) {
+    listener();
+  }
+}
+
+function subscribeSettings(listener: () => void) {
+  settingsListeners.add(listener);
+
+  if (typeof window === "undefined") {
+    return () => settingsListeners.delete(listener);
+  }
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key !== STORAGE_KEY) return;
+    settingsSnapshot = loadSettings();
+    hasLoadedClientSnapshot = true;
+    emitSettingsChange();
+  };
+
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    settingsListeners.delete(listener);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
+function getSettingsSnapshot() {
+  if (typeof window === "undefined") {
+    return DEFAULT_SETTINGS;
+  }
+  ensureClientSnapshotLoaded();
+  return settingsSnapshot;
+}
+
+function getServerSettingsSnapshot() {
+  return DEFAULT_SETTINGS;
+}
+
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<PrinterSettings>(loadSettings);
-  const isInitialRender = useRef(true);
-
-  // Persist to localStorage on change (skip the initial render)
-  useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [settings]);
+  const settings = useSyncExternalStore(
+    subscribeSettings,
+    getSettingsSnapshot,
+    getServerSettingsSnapshot,
+  );
 
   const updateSettings = useCallback((partial: Partial<PrinterSettings>) => {
-    setSettings((prev) => ({ ...prev, ...partial }));
+    ensureClientSnapshotLoaded();
+    settingsSnapshot = { ...settingsSnapshot, ...partial };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(settingsSnapshot));
+    } catch {
+      // Ignore storage write errors and keep in-memory settings.
+    }
+    emitSettingsChange();
   }, []);
 
   return (
