@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.3...v1.1.4) (2026-02-17)
+
+
+### Bug Fixes
+
+* add google analytics ([af0eff4](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/af0eff4002ebe2197e6ccd502fda7328c87a3af4))
+
 ## [1.1.3](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.2...v1.1.3) (2026-02-17)
 
 
