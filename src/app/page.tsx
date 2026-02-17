@@ -200,12 +200,12 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="flex h-dvh min-h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:h-auto lg:min-h-screen lg:items-center lg:p-4">
-        {/* Top nav */}
-        <nav className="relative z-30 flex w-full items-center justify-between px-4 py-2 lg:mb-4 lg:max-w-5xl">
+      <div className="flex h-dvh min-h-dvh flex-col bg-zinc-50 pb-2.5 font-sans dark:bg-zinc-950 lg:h-auto lg:min-h-screen lg:items-center lg:p-4 lg:pb-4">
+        {/* Top nav — overlaid on mobile so the 3D view fills full height */}
+        <nav className="absolute inset-x-0 top-0 z-30 flex w-full items-center justify-between px-4 py-2 lg:relative lg:mb-4 lg:max-w-5xl">
           <Link
             href="/print"
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            className="flex hidden sm:block items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -247,9 +247,9 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* Settings Panel */}
+        {/* Settings Panel — overlaid on mobile below nav */}
         {showSettings && (
-          <div className="mx-4 mb-2 w-auto rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 lg:mx-auto lg:mb-4 lg:w-full lg:max-w-5xl">
+          <div className="absolute inset-x-4 top-12 z-30 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 lg:relative lg:inset-auto lg:mx-auto lg:mb-4 lg:w-full lg:max-w-5xl">
             <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
               Printer Settings
             </h2>

@@ -1229,16 +1229,12 @@ export function ToiletRoll({
 
       {/* HUD overlay */}
       <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-1">
-        <div className="rounded-lg bg-black/60 px-3 py-1.5 text-2xl font-bold tabular-nums text-white backdrop-blur-sm">
+        <div className="hidden md:block rounded-lg bg-black/60 px-3 py-1.5 text-2xl font-bold tabular-nums text-white backdrop-blur-sm">
           {sheetCount} sheet{sheetCount !== 1 ? "s" : ""}
         </div>
-        <div className="rounded-lg bg-black/65 px-3 py-1 text-sm text-white backdrop-blur-sm">
+        <div className="mt-6 sm:mt-0 rounded-lg bg-black/65 px-3 py-1 text-sm text-white backdrop-blur-sm">
           {rollState.unrolledLength.toFixed(1)} cm &middot; {percentage}%
           unrolled
-        </div>
-        <div className="rounded-lg bg-black/70 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
-          Roll: {maxLengthCm.toFixed(1)} cm &middot; Sheet:{" "}
-          {paperLengthCm.toFixed(1)} cm
         </div>
       </div>
 
