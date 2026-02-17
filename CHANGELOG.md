@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.2...v1.1.3) (2026-02-17)
+
+
+### Bug Fixes
+
+* change favicon ([85b0616](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/85b0616390902693307832054b31a6e98145813a))
+
 ## [1.1.2](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.1...v1.1.2) (2026-02-17)
 
 
