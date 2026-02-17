@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "generate:og": "bash scripts/generate-og-images.sh",
     "prepare": "husky",
     "semantic-release": "semantic-release"
   },

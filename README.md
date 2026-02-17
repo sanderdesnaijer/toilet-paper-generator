@@ -14,6 +14,18 @@ pnpm dev
 bun dev
 ```
 
+Set the site URL env var so metadata, sitemap, and robots point to the right domain:
+
+```bash
+cp .env.example .env.local
+```
+
+Generate social images from `public/logo.jpg`:
+
+```bash
+npm run generate:og
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

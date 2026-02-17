@@ -199,7 +199,7 @@ export default function RollPage() {
   );
 
   return (
-    <div className="flex h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:h-auto lg:min-h-screen lg:items-center lg:p-4">
+    <div className="flex min-h-dvh flex-col bg-zinc-50 font-sans dark:bg-zinc-950 lg:min-h-screen lg:items-center lg:p-4">
       {/* Top nav */}
       <nav className="relative z-30 flex w-full items-center justify-between px-4 py-2 lg:mb-4 lg:max-w-5xl">
         <Link
@@ -493,6 +493,96 @@ export default function RollPage() {
           {result.message}
         </div>
       )}
+
+      <section className="mx-4 mt-20 mb-24 w-auto rounded-2xl border border-zinc-200 bg-white/90 p-6 text-zinc-700 shadow-sm backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300 lg:mx-auto lg:mt-8 lg:mb-0 lg:w-full lg:max-w-5xl">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          Three.js Physics Demo with Real ESC/POS Thermal Printer Output
+        </h2>
+        <p className="mt-3 text-sm leading-6">
+          3D Toilet Paper Generator is an experimental Next.js web application
+          that combines interactive WebGL simulation with real-world ESC/POS
+          thermal printing.
+        </p>
+        <p className="mt-3 text-sm leading-6">
+          Drag a realistic 3D toilet roll, measure the exact unrolled length in
+          centimeters, and send that value directly to a network thermal printer
+          over TCP.
+        </p>
+        <p className="mt-3 text-sm leading-6">
+          This project demonstrates how browser-based 3D rendering can integrate
+          with real hardware through a Node.js backend.
+        </p>
+
+        <h3 className="mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          How It Works
+        </h3>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
+          <li>Interactive 3D toilet roll built with Three.js and React Three Fiber</li>
+          <li>Custom Verlet-based cloth simulation for the hanging paper strip</li>
+          <li>Dynamic roll radius calculation based on unrolled distance</li>
+          <li>Rapier physics for collisions and movement</li>
+          <li>
+            Direct ESC/POS byte commands sent over TCP using Node.js
+            net.Socket
+          </li>
+          <li>Automatic feed and cut commands for compatible thermal printers</li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          Tech Stack
+        </h3>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
+          <li>Next.js 16 (App Router)</li>
+          <li>React 19</li>
+          <li>Tailwind CSS v4</li>
+          <li>Three.js</li>
+          <li>@react-three/fiber</li>
+          <li>@react-three/drei</li>
+          <li>@react-three/rapier</li>
+          <li>Node.js TCP sockets</li>
+          <li>ESC/POS thermal printer protocol</li>
+        </ul>
+
+        <h3 className="mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          Important: Printing Requirements
+        </h3>
+        <p className="mt-3 text-sm leading-6">
+          Thermal printing requires running the project with a Node.js server.
+        </p>
+        <p className="mt-3 text-sm leading-6">
+          Web browsers do not support direct TCP socket communication, which
+          means ESC/POS printing cannot work from a static deployment alone.
+        </p>
+        <p className="mt-3 text-sm leading-6">To enable printing:</p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
+          <li>Run the project locally or on a Node-enabled server</li>
+          <li>
+            Configure your printer IP address and port (typically 9100)
+          </li>
+          <li>Ensure the printer supports raw ESC/POS over TCP</li>
+        </ul>
+        <p className="mt-3 text-sm leading-6">
+          The live demo shows the 3D simulation, but printer output requires
+          server execution.
+        </p>
+
+        <h3 className="mt-6 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          Why I Built This
+        </h3>
+        <p className="mt-3 text-sm leading-6">
+          What started as a joke became a compact testbed for:
+        </p>
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6">
+          <li>WebGL physics rendering</li>
+          <li>Custom cloth simulation</li>
+          <li>Network-based hardware integration</li>
+          <li>Raw ESC/POS command generation</li>
+        </ul>
+        <p className="mt-3 text-sm leading-6">
+          It&apos;s playful on the surface, but technically it demonstrates a
+          full browser → server → printer workflow.
+        </p>
+      </section>
     </div>
   );
 }

@@ -27,6 +27,6 @@ export async function printToiletPaper(
   return {
     success: false,
     message:
-      "Printing is only available when running with a server (npm run build && npm run start). This static build is for FTP/static hosting.",
+      "Printing is only available when running with a server (npm run build && npm run start)",
   };
 }
