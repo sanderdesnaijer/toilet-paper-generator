@@ -573,12 +573,13 @@ function Roll3D({
 
     if (shellMatRef.current) {
       if (rollTexture) {
-        if (shellMatRef.current.map !== rollTexture) {
+        const textureChanged = shellMatRef.current.map !== rollTexture;
+        if (textureChanged) {
           shellMatRef.current.map = rollTexture;
           shellMatRef.current.color.set("#ffffff");
           shellMatRef.current.needsUpdate = true;
         }
-        if (radiusChanged) {
+        if (radiusChanged || textureChanged) {
           const circumference = 2 * Math.PI * currentRadius;
           const repeatU = Math.max(1, Math.round(circumference / ROLL_WIDTH));
           rollTexture.repeat.set(repeatU, 1);
