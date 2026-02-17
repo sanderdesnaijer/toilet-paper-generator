@@ -700,6 +700,17 @@ const INITIAL_CAMERA: CameraState = {
   targetZ: 0,
 };
 
+function ReadyNotifier({ onReady }: { onReady: () => void }) {
+  const called = useRef(false);
+  useFrame(() => {
+    if (!called.current) {
+      called.current = true;
+      onReady();
+    }
+  });
+  return null;
+}
+
 function CameraController({
   cameraRef,
 }: {
@@ -818,6 +829,7 @@ function Scene({
   dragRef,
   maxLengthCm,
   onUpdate,
+  onReady,
   pattern = "none",
   patternStrength = DEFAULT_PATTERN_STRENGTH,
   patternDarkness = DEFAULT_PATTERN_DARKNESS,
@@ -836,6 +848,7 @@ function Scene({
   }>;
   maxLengthCm: number;
   onUpdate: (state: RollPhysicsState) => void;
+  onReady: () => void;
   pattern?: PatternType;
   patternStrength?: number;
   patternDarkness?: number;
@@ -1007,6 +1020,7 @@ function Scene({
       />
 
       <CameraController cameraRef={cameraRef} />
+      <ReadyNotifier onReady={onReady} />
     </>
   );
 }
@@ -1039,6 +1053,8 @@ export function ToiletRoll({
   className,
 }: ToiletRollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const handleReady = useCallback(() => setIsLoading(false), []);
   const [rollState, setRollState] = useState<RollPhysicsState>({
     angularVelocity: 0,
     totalRotation: 0,
@@ -1195,6 +1211,7 @@ export function ToiletRoll({
             dragRef={dragRef}
             maxLengthCm={maxLengthCm}
             onUpdate={handleUpdate}
+            onReady={handleReady}
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
@@ -1203,6 +1220,21 @@ export function ToiletRoll({
             paperLengthCm={paperLengthCm}
           />
         </Canvas>
+
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900">
+            <div className="tp-loader" aria-label="Loading 3D scene">
+              <div className="tp-roll">
+                <div className="tp-core" />
+              </div>
+              <div className="tp-paper" />
+            </div>
+            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Unrolling...
+            </p>
+          </div>
+        )}
 
         {/* Drag hint overlay */}
         {rollState.unrolledLength === 0 && !rollState.isDragging && (

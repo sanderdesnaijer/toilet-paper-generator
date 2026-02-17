@@ -24,3 +24,59 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Toilet Roll Loader ── */
+
+.tp-loader {
+  position: relative;
+  width: 64px;
+  height: 80px;
+}
+
+.tp-roll {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  margin-left: -24px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, #e8e4df 0deg, #dad4cb 30deg, #e8e4df 60deg);
+  box-shadow: inset 0 0 0 4px #d6d0c8, 0 2px 8px rgba(0, 0, 0, 0.12);
+  animation: tp-spin 0.4s linear infinite;
+}
+
+.tp-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: #b09e82;
+}
+
+.tp-paper {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  width: 18px;
+  margin-left: -9px;
+  height: 32px;
+  background: #ece8e3;
+  border-radius: 0 0 3px 3px;
+  transform-origin: top center;
+  animation: tp-wave 1s ease-in-out infinite;
+}
+
+@keyframes tp-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes tp-wave {
+  0%, 100% { transform: rotate(-8deg) scaleY(0.9); }
+  50%      { transform: rotate(8deg) scaleY(1.1); }
+}
