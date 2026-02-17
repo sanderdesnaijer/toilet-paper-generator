@@ -278,7 +278,7 @@ function createMultiSheetTexture(
   darkness: number,
   messageType: MessageType,
   totalSheets: number,
-  textRotationDeg: number = 180,
+  textRotationDeg: number = 90,
 ): MultiSheetResult | null {
   const effectiveSheets = Math.max(
     1,
@@ -358,7 +358,7 @@ function ClothPaperMesh({
         patternDarkness,
         messageType,
         totalSheets,
-        180,
+        90,
       );
       if (result) {
         return {
@@ -373,7 +373,7 @@ function ClothPaperMesh({
       patternStrength,
       patternDarkness,
       "none",
-      180,
+      90,
     );
     return tex
       ? { texture: tex, effectiveSheets: 1, isMultiSheet: false }
@@ -513,8 +513,6 @@ function Roll3D({
   pattern,
   patternStrength,
   patternDarkness,
-  messageType = "none",
-  totalSheets = 5,
 }: {
   stateRef: React.RefObject<RollPhysicsState>;
   maxLengthCm: number;
@@ -522,8 +520,6 @@ function Roll3D({
   pattern: PatternType;
   patternStrength: number;
   patternDarkness: number;
-  messageType?: MessageType;
-  totalSheets?: number;
 }) {
   const shellMeshRef = useRef<THREE.Mesh>(null);
   const shellMatRef = useRef<THREE.MeshStandardMaterial>(null);
@@ -536,17 +532,11 @@ function Roll3D({
       pattern,
       patternStrength,
       patternDarkness,
-      messageType,
-      90,
-      totalSheets,
+      "none",
+      0,
     );
-    if (texture) {
-      texture.center.set(0.5, 0.5);
-      texture.rotation = Math.PI / 2;
-      texture.needsUpdate = true;
-    }
     return texture;
-  }, [pattern, patternStrength, patternDarkness, messageType, totalSheets]);
+  }, [pattern, patternStrength, patternDarkness]);
 
   useEffect(() => {
     return () => {
@@ -1001,8 +991,6 @@ function Scene({
             pattern={pattern}
             patternStrength={patternStrength}
             patternDarkness={patternDarkness}
-            messageType={messageType}
-            totalSheets={totalSheets}
           />
         </RigidBody>
       </Physics>

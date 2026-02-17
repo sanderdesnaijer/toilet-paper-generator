@@ -177,7 +177,7 @@ export default function HomePage() {
         </>
       )}
 
-      <div>
+      <div className="hidden">
         <label
           htmlFor={`${prefix}-messageType`}
           className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
@@ -191,7 +191,7 @@ export default function HomePage() {
           className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
         >
           <option value="none">None</option>
-          <option value="wipe-counter">Wipe counter</option>
+          <option value="wipe-counter">Counter</option>
           <option value="inspirational-quote">Inspirational quote</option>
         </select>
       </div>

@@ -175,9 +175,9 @@ export class ClothSimulation {
     for (let i = 0; i < n; i++) {
       const v = (i * segmentLength) / paperWidth;
       const base = i * 4;
-      arr[base] = 0;
+      arr[base] = 1;
       arr[base + 1] = v;
-      arr[base + 2] = 1;
+      arr[base + 2] = 0;
       arr[base + 3] = v;
     }
     return arr;
