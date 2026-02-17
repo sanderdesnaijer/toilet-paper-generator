@@ -1,3 +1,10 @@
+## [1.1.13](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.12...v1.1.13) (2026-02-17)
+
+
+### Bug Fixes
+
+* direct change of pattern ([db63098](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/db63098a896107190d3b0e2c088d495c6b954dfb))
+
 ## [1.1.12](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.11...v1.1.12) (2026-02-17)
 
 
