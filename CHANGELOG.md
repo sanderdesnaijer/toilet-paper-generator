@@ -1,3 +1,11 @@
+## [1.1.2](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.1...v1.1.2) (2026-02-17)
+
+
+### Bug Fixes
+
+* added lines to roll ([cccd916](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/cccd9165d0524c391e8e6dff0e5eebca98ced774))
+* comment ([3e2f219](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/3e2f219780421f74a5045c598ed7939b138408b6))
+
 ## [1.1.1](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.0...v1.1.1) (2026-02-17)
 
 
