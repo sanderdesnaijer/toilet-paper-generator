@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.0.0...v1.1.0) (2026-02-17)
+
+
+### Bug Fixes
+
+* changed main page ([05d1cdd](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/05d1cddfe20cadffc6e3eae72a742b686d61156c))
+* preview text ([ea9148c](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/ea9148c3f3c06a124f51afb7e197d8a02334bbb4))
+* preview text ([ff08e18](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/ff08e18e554aec22e26cd5e3e092fb0ebdab2e84))
+
+
+### Features
+
+* optimize SEO ([cf2e700](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/cf2e70096919ce854c0e0d3df6d524351edffc68))
+
 # 1.0.0 (2026-02-16)
 
 
