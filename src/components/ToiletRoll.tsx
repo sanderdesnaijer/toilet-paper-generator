@@ -346,7 +346,6 @@ function ClothPaperMesh({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshStandardMaterial>(null);
-  const normalFrameRef = useRef(0);
 
   const hasMessages = messageType !== "none";
 
@@ -456,11 +455,7 @@ function ClothPaperMesh({
     idxAttr.needsUpdate = true;
 
     geo.setDrawRange(0, indices.length);
-    // Computing normals every frame is expensive; update every few frames.
-    normalFrameRef.current += 1;
-    if (normalFrameRef.current % 3 === 0) {
-      geo.computeVertexNormals();
-    }
+    geo.computeVertexNormals();
 
     if (matRef.current) {
       if (textureData) {
