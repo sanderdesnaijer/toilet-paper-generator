@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useSettings } from "@/contexts/SettingsContext";
 import { printToiletPaper } from "./actions";
-import { ToiletRoll } from "@/components/ToiletRoll";
 import {
   type PatternType,
   type MessageType,
@@ -17,6 +17,13 @@ import {
   PATTERN_MIN,
   PATTERN_MAX,
 } from "@/constants";
+
+const ToiletRoll = dynamic(
+  () => import("@/components/ToiletRoll").then((mod) => mod.ToiletRoll),
+  {
+    ssr: false,
+  },
+);
 
 export default function HomePage() {
   const { settings, updateSettings } = useSettings();
@@ -32,6 +39,7 @@ export default function HomePage() {
   );
   const [showSettings, setShowSettings] = useState(false);
   const [showMobileControls, setShowMobileControls] = useState(false);
+  const [is3DReady, setIs3DReady] = useState(false);
   const [isPrinting, startPrinting] = useTransition();
   const [result, setResult] = useState<{
     success: boolean;
@@ -48,6 +56,31 @@ export default function HomePage() {
 
   const handleSheetCountChange = useCallback((count: number) => {
     setSheetCount(count);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const enable3D = () => {
+      if (!cancelled) setIs3DReady(true);
+    };
+
+    if (
+      typeof window !== "undefined" &&
+      "requestIdleCallback" in window &&
+      "cancelIdleCallback" in window
+    ) {
+      const idleId = window.requestIdleCallback(enable3D, { timeout: 1200 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timeoutId = setTimeout(enable3D, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   function handlePrint() {
@@ -298,17 +331,25 @@ export default function HomePage() {
         <div className="relative flex min-h-0 flex-1 flex-col lg:w-full lg:max-w-5xl lg:flex-row lg:items-start lg:gap-6">
           {/* 3D Roll — full screen on mobile, normal on desktop */}
           <div className="min-h-0 flex-1 lg:w-full lg:flex-1">
-            <ToiletRoll
-              onLengthChange={handleRollLengthChange}
-              onSheetCountChange={handleSheetCountChange}
-              maxLengthCm={maxLengthCm}
-              paperLengthCm={paperLengthCm}
-              pattern={pattern}
-              patternStrength={patternStrength}
-              patternDarkness={patternDarkness}
-              messageType={messageType}
-              className="h-full lg:aspect-square lg:h-auto lg:rounded-2xl"
-            />
+            {is3DReady ? (
+              <ToiletRoll
+                onLengthChange={handleRollLengthChange}
+                onSheetCountChange={handleSheetCountChange}
+                maxLengthCm={maxLengthCm}
+                paperLengthCm={paperLengthCm}
+                pattern={pattern}
+                patternStrength={patternStrength}
+                patternDarkness={patternDarkness}
+                messageType={messageType}
+                className="h-full lg:aspect-square lg:h-auto lg:rounded-2xl"
+              />
+            ) : (
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-gradient-to-b from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 lg:h-full lg:aspect-square lg:rounded-2xl">
+                <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                  Loading 3D roll...
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Desktop Controls sidebar */}

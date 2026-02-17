@@ -1172,6 +1172,8 @@ export function ToiletRoll({
         style={{ touchAction: "none" }}
       >
         <Canvas
+          dpr={[1, 1.5]}
+          gl={{ antialias: false, powerPreference: "low-power" }}
           camera={{
             fov: 35,
             near: 0.1,
