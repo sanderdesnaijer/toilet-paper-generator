@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.0...v1.1.1) (2026-02-17)
+
+
+### Bug Fixes
+
+* change defaults ([94d31e0](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/94d31e0e8ed3f85ee17119240e492b2a62115ad5))
+* move roll ([a64c4da](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/a64c4da9991ec40c4b0b558007f8d54b18bd8968))
+
 # [1.1.0](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.0.0...v1.1.0) (2026-02-17)
 
 
