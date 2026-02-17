@@ -13,13 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
     },
     {
-      url: `${baseUrl}/roll`,
-      lastModified,
-    },
-    {
       url: `${baseUrl}/print`,
       lastModified,
     },
   ];
 }
-

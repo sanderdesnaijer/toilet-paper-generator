@@ -71,7 +71,7 @@ export default function PrintPage() {
                 Print blank sheets to your thermal printer
               </p>
               <Link
-                href="/roll"
+                href="/"
                 className="mt-2 inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-200 hover:text-zinc-900 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
               >
                 Try 3D Roll Mode
