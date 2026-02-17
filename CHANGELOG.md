@@ -1,3 +1,10 @@
+## [1.1.11](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.10...v1.1.11) (2026-02-17)
+
+
+### Bug Fixes
+
+* add loader ([bfd6584](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/bfd6584e523a412a43488ac0fafc6934d98bfbe3))
+
 ## [1.1.10](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.9...v1.1.10) (2026-02-17)
 
 
