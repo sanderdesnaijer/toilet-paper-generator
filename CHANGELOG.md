@@ -1,3 +1,10 @@
+## [1.1.8](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.7...v1.1.8) (2026-02-17)
+
+
+### Bug Fixes
+
+* mobile buttons ([3fb61aa](https://github.com/sanderdesnaijer/toilet-paper-generator/commit/3fb61aa780c777a21d0e4dd8f01a486a6e331c7e))
+
 ## [1.1.7](https://github.com/sanderdesnaijer/toilet-paper-generator/compare/v1.1.6...v1.1.7) (2026-02-17)
 
 
