@@ -1,232 +1,264 @@
-🧻 3D Toilet Roll Generator
-Three.js Physics Demo with Real Thermal Printer Output
+Absolutely.
+Here is the full cleaned README as plain text you can copy directly into `README.md`.
 
-An interactive 3D toilet paper roll simulator built with Next.js, Three.js, and Rapier physics.
+---
+
+# 🧻 3D Toilet Roll Generator
+
+### Three.js Physics Demo with Real Thermal Printer Output
+
+An interactive **3D toilet paper roll simulator** built with **Next.js, Three.js, and Rapier physics**.
 
 Drag the roll in your browser.
 Measure the paper in real centimeters.
 Print the exact result to a real ESC/POS thermal printer.
 
 Live demo:
-👉 https://unroll.metsander.com
+👉 [https://unroll.metsander.com](https://unroll.metsander.com)
 
-🚀 What This Project Does
+---
+
+## 🚀 What This Project Does
 
 This project combines:
 
-Real-time WebGL rendering
-
-Physics simulation
-
-Dynamic roll geometry
-
-Centimeter-accurate paper measurement
-
-Raw ESC/POS printer output over TCP
+* Real-time WebGL rendering
+* Physics simulation
+* Dynamic roll geometry
+* Centimeter-accurate paper measurement
+* Raw ESC/POS printer output over TCP
 
 It started as a small experiment.
 It escalated.
 
-🧠 How It Works
-1️⃣ 3D Roll Rendering
+---
 
-Built with Three.js via React Three Fiber
+## 🧠 How It Works
 
-Dynamic cylinder geometry updates as paper unrolls
+### 1️⃣ 3D Roll Rendering
 
-Realistic paper tail with physics constraints
+* Built with Three.js via React Three Fiber
+* Dynamic cylinder geometry updates as paper unrolls
+* Realistic paper tail with physics constraints
 
-2️⃣ Physics Simulation
+### 2️⃣ Physics Simulation
 
-Powered by Rapier physics
+* Powered by Rapier physics
+* Inertia while dragging
+* Paper interacts with the ground plane
 
-Inertia while dragging
+### 3️⃣ Measurement Logic
 
-Paper interacts with the ground plane
+* Converts unrolled arc length to real-world centimeters
+* Roll radius updates dynamically
+* Tracks remaining paper accurately
 
-3️⃣ Measurement Logic
+### 4️⃣ Thermal Printer Integration
 
-Converts unrolled arc length to real-world centimeters
+* Sends raw ESC/POS byte commands
+* Communicates via Node TCP socket
+* Works with most Ethernet thermal printers
 
-Roll radius updates dynamically
+---
 
-Tracks remaining paper accurately
+## 🛠 Tech Stack
 
-4️⃣ Thermal Printer Integration
+* Next.js 16
+* React 19
+* Three.js
+* React Three Fiber
+* Rapier Physics
+* Tailwind CSS
+* Node TCP Sockets
+* ESC/POS raw commands
 
-Sends raw ESC/POS byte commands
+---
 
-Communicates via Node TCP socket
+## 📦 Getting Started
 
-Works with most Ethernet thermal printers
+### 1. Install
 
-🛠 Tech Stack
-
-Next.js 16
-
-React 19
-
-Three.js
-
-React Three Fiber
-
-Rapier Physics
-
-Tailwind CSS
-
-Node TCP Sockets
-
-ESC/POS raw commands
-
-📦 Getting Started
-1. Install
+```bash
 npm install
-2. Setup Environment
+```
+
+### 2. Setup Environment
 
 Copy environment file:
 
+```bash
 cp .env.example .env.local
+```
 
-Set your site URL so metadata, sitemap and robots are correct.
+Set your site URL so metadata, sitemap, and robots are correct.
 
-3. Run Development Server
+---
+
+### 3. Run Development Server
+
+```bash
 npm run dev
+```
 
 Open:
 
+```
 http://localhost:3000
-🖨 Printer Support
+```
+
+---
+
+## 🖨 Printer Support
 
 There are two modes:
 
-Static Mode (No Printer Support)
-npm run build
+---
 
-This generates a fully static export in /out.
+### Static Mode (No Printer Support)
+
+```bash
+npm run build
+```
+
+This generates a fully static export in `/out`.
 
 In this mode:
 
-The 3D demo works
-
-Measurement works
-
-The Print button is disabled
+* The 3D demo works
+* Measurement works
+* The Print button is disabled
 
 Good for:
 
-GitHub Pages
+* GitHub Pages
+* Cloudflare Pages
+* Static hosting
 
-Cloudflare Pages
+---
 
-Static hosting
-
-Server Mode (Printer Enabled)
+### Server Mode (Printer Enabled)
 
 To enable real thermal printer output:
 
-Replace:
+1. Replace:
 
+```
 src/app/actions.ts
+```
 
 With:
 
+```
 src/app/actions.server.ts
+```
 
-Remove:
+2. Remove:
 
+```ts
 output: "export"
+```
 
-From next.config.ts
+From `next.config.ts`
 
-Build and start:
+3. Build and start:
 
+```bash
 npm run build
 npm run start
+```
 
 Now the app can send raw ESC/POS commands to your network printer.
 
-📸 Social Images
+---
+
+## 📸 Social Images
 
 Generate Open Graph images:
 
+```bash
 npm run generate:og
+```
 
-Uses public/logo.jpg as base.
+Uses `public/logo.jpg` as base.
 
-🌍 SEO & AI Discoverability
+---
+
+## 🌍 SEO & AI Discoverability
 
 This project includes:
 
-Proper metadata
+* Proper metadata
+* Open Graph tags
+* Twitter cards
+* Dynamic OG image generation
+* Sitemap.xml
+* Robots.txt
 
-Open Graph tags
+Target keywords:
 
-Twitter cards
+* Three.js physics demo
+* WebGL printer integration
+* ESC/POS Node example
+* Thermal printer from browser
+* React Three Fiber physics
+* Interactive 3D demo with hardware
 
-Dynamic OG image generation
+---
 
-Sitemap.xml
-
-Robots.txt
-
-The goal:
-Be indexable by Google, GitHub search, and AI systems.
-
-Keywords this project targets:
-
-Three.js physics demo
-
-WebGL printer integration
-
-ESC/POS Node example
-
-Thermal printer from browser
-
-React Three Fiber physics
-
-Interactive 3D demo with hardware
-
-🎯 Why This Exists
+## 🎯 Why This Exists
 
 Because combining:
 
-WebGL
-
-Physics
-
-Geometry math
-
-Real hardware printing
+* WebGL
+* Physics
+* Geometry math
+* Real hardware printing
 
 into a toilet paper simulator
 is objectively unnecessary.
 
 And therefore necessary.
 
-📜 Commit Convention
+---
+
+## 📜 Commit Convention
 
 This project follows Conventional Commits.
 
+Format:
+
+```
+<type>(<scope>): <description>
+```
+
 Example:
 
+```bash
 feat: add toilet paper roll animation
 fix: correct paper texture rendering
 feat(printer)!: change escpos command structure
-🚀 Deployment
-Static Hosting
+```
 
-Upload /out folder to:
+---
 
-GitHub Pages
+## 🚀 Deployment
 
-Cloudflare Pages
+### Static Hosting
 
-Any FTP host
+Upload the `/out` folder to:
 
-Vercel
+* GitHub Pages
+* Cloudflare Pages
+* Any FTP host
 
-Works out of the box.
+---
 
-📄 License
+### Vercel
+
+Works out of the box with default Next.js settings.
+
+---
+
+## 📄 License
 
 MIT — do whatever you want, just don’t blame me if you print too much paper.
