@@ -1,104 +1,232 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🧻 3D Toilet Roll Generator
+Three.js Physics Demo with Real Thermal Printer Output
 
-## Getting Started
+An interactive 3D toilet paper roll simulator built with Next.js, Three.js, and Rapier physics.
 
-First, run the development server:
+Drag the roll in your browser.
+Measure the paper in real centimeters.
+Print the exact result to a real ESC/POS thermal printer.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Live demo:
+👉 https://unroll.metsander.com
 
-Set the site URL env var so metadata, sitemap, and robots point to the right domain:
+🚀 What This Project Does
 
-```bash
+This project combines:
+
+Real-time WebGL rendering
+
+Physics simulation
+
+Dynamic roll geometry
+
+Centimeter-accurate paper measurement
+
+Raw ESC/POS printer output over TCP
+
+It started as a small experiment.
+It escalated.
+
+🧠 How It Works
+1️⃣ 3D Roll Rendering
+
+Built with Three.js via React Three Fiber
+
+Dynamic cylinder geometry updates as paper unrolls
+
+Realistic paper tail with physics constraints
+
+2️⃣ Physics Simulation
+
+Powered by Rapier physics
+
+Inertia while dragging
+
+Paper interacts with the ground plane
+
+3️⃣ Measurement Logic
+
+Converts unrolled arc length to real-world centimeters
+
+Roll radius updates dynamically
+
+Tracks remaining paper accurately
+
+4️⃣ Thermal Printer Integration
+
+Sends raw ESC/POS byte commands
+
+Communicates via Node TCP socket
+
+Works with most Ethernet thermal printers
+
+🛠 Tech Stack
+
+Next.js 16
+
+React 19
+
+Three.js
+
+React Three Fiber
+
+Rapier Physics
+
+Tailwind CSS
+
+Node TCP Sockets
+
+ESC/POS raw commands
+
+📦 Getting Started
+1. Install
+npm install
+2. Setup Environment
+
+Copy environment file:
+
 cp .env.example .env.local
-```
 
-Generate social images from `public/logo.jpg`:
+Set your site URL so metadata, sitemap and robots are correct.
 
-```bash
+3. Run Development Server
+npm run dev
+
+Open:
+
+http://localhost:3000
+🖨 Printer Support
+
+There are two modes:
+
+Static Mode (No Printer Support)
+npm run build
+
+This generates a fully static export in /out.
+
+In this mode:
+
+The 3D demo works
+
+Measurement works
+
+The Print button is disabled
+
+Good for:
+
+GitHub Pages
+
+Cloudflare Pages
+
+Static hosting
+
+Server Mode (Printer Enabled)
+
+To enable real thermal printer output:
+
+Replace:
+
+src/app/actions.ts
+
+With:
+
+src/app/actions.server.ts
+
+Remove:
+
+output: "export"
+
+From next.config.ts
+
+Build and start:
+
+npm run build
+npm run start
+
+Now the app can send raw ESC/POS commands to your network printer.
+
+📸 Social Images
+
+Generate Open Graph images:
+
 npm run generate:og
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uses public/logo.jpg as base.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🌍 SEO & AI Discoverability
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project includes:
 
-## Learn More
+Proper metadata
 
-To learn more about Next.js, take a look at the following resources:
+Open Graph tags
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Twitter cards
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Dynamic OG image generation
 
-## Commit Message Convention
+Sitemap.xml
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/) enforced by [commitlint](https://commitlint.js.org/). Every commit message must follow this format:
+Robots.txt
 
-```
-<type>(<scope>): <description>
+The goal:
+Be indexable by Google, GitHub search, and AI systems.
 
-[optional body]
+Keywords this project targets:
 
-[optional footer(s)]
-```
+Three.js physics demo
 
-### Types
+WebGL printer integration
 
-| Type       | Description                                          | Version Bump |
-| ---------- | ---------------------------------------------------- | ------------ |
-| `feat`     | A new feature                                        | Minor        |
-| `fix`      | A bug fix                                            | Patch        |
-| `docs`     | Documentation only changes                           | -            |
-| `style`    | Code style changes (formatting, semicolons, etc.)    | -            |
-| `refactor` | Code change that neither fixes a bug nor adds a feat | -            |
-| `perf`     | A code change that improves performance              | Patch        |
-| `test`     | Adding or updating tests                             | -            |
-| `build`    | Changes to the build system or dependencies          | -            |
-| `ci`       | Changes to CI configuration files and scripts        | -            |
-| `chore`    | Other changes that don't modify src or test files    | -            |
-| `revert`   | Reverts a previous commit                            | Patch        |
+ESC/POS Node example
 
-### Breaking Changes
+Thermal printer from browser
 
-To trigger a **major** version bump, either:
+React Three Fiber physics
 
-- Add `!` after the type/scope: `feat!: redesign entire UI`
-- Include a `BREAKING CHANGE:` footer in the commit body
+Interactive 3D demo with hardware
 
-### Examples
+🎯 Why This Exists
 
-```bash
+Because combining:
+
+WebGL
+
+Physics
+
+Geometry math
+
+Real hardware printing
+
+into a toilet paper simulator
+is objectively unnecessary.
+
+And therefore necessary.
+
+📜 Commit Convention
+
+This project follows Conventional Commits.
+
+Example:
+
 feat: add toilet paper roll animation
 fix: correct paper texture rendering
-docs: update README with commit conventions
-feat(ui)!: redesign the generator layout
-```
+feat(printer)!: change escpos command structure
+🚀 Deployment
+Static Hosting
 
-## Static export (FTP / static hosting)
+Upload /out folder to:
 
-The build produces a static site you can upload to any FTP host or static file server:
+GitHub Pages
 
-```bash
-npm run build
-```
+Cloudflare Pages
 
-Upload the contents of the **`out`** folder to your server (e.g. via FTP). The site will work at your domain root; use the same directory structure (e.g. `index.html` at root, `roll/index.html` for the roll page).
+Any FTP host
 
-**Note:** In this static build, the “Print” button does not send to a network printer (that requires a Node server). To enable printer support, run the app with a server: replace `src/app/actions.ts` with the implementation from `src/app/actions.server.ts`, remove `output: "export"` from `next.config.ts`, then `npm run build` and `npm run start`.
+Vercel
 
-## Deploy on Vercel
+Works out of the box.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — do whatever you want, just don’t blame me if you print too much paper.
