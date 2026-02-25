@@ -15,7 +15,6 @@ Print the exact result to a real ESC/POS thermal printer.
 
 Live demo:
 👉 [https://unroll.metsander.com](https://unroll.metsander.com)
-👉 [![Watch on YouTube](https://img.youtube.com/vi/CoDqEwYAJCQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=CoDqEwYAJCQ)
 
 ---
 
@@ -31,6 +30,11 @@ This project combines:
 
 It started as a small experiment.
 It escalated.
+
+---
+
+## Watch video
+[![Watch on YouTube](https://img.youtube.com/vi/CoDqEwYAJCQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=CoDqEwYAJCQ)
 
 ---
 
