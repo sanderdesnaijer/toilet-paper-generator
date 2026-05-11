@@ -1,24 +1,22 @@
-Absolutely.
-Here is the full cleaned README as plain text you can copy directly into `README.md`.
+# 3D Toilet Paper Roll Simulator with Real Thermal Printing
+
+A browser-based 3D toilet paper roll you can drag and unroll in real time. The physics simulation measures the exact paper length in centimeters. When you stop, the result prints on a real thermal receipt printer using raw ESC/POS commands over TCP.
+
+Built with Next.js, Three.js (React Three Fiber), and Rapier physics.
+
+**[Live Demo](https://unroll.metsander.com)** | **[Project Page](https://www.sanderdesnaijer.com/projects/3d-toilet-paper-roll-simulator-with-real-thermal-printing)** | **[Portfolio](https://www.sanderdesnaijer.com/)**
 
 ---
 
-# 🧻 3D Toilet Roll Generator
+## What It Does
 
-### Three.js Physics Demo with Real Thermal Printer Output
+This project combines real-time WebGL rendering, rigid body physics, dynamic geometry updates, centimeter-accurate paper measurement, and raw ESC/POS printer output over TCP into a single interactive demo.
 
-An interactive **3D toilet paper roll simulator** built with **Next.js, Three.js, and Rapier physics**.
-
-Drag the roll in your browser.
-Measure the paper in real centimeters.
-Print the exact result to a real ESC/POS thermal printer.
-
-Live demo:
-👉 [https://unroll.metsander.com](https://unroll.metsander.com)
+It started as a small experiment. It escalated.
 
 ---
 
-## 🚀 What This Project Does
+## How It Works
 
 This project combines:
 
@@ -40,25 +38,25 @@ It escalated.
 
 ## 🧠 How It Works
 
-### 1️⃣ 3D Roll Rendering
+### 3D Roll Rendering
 
 * Built with Three.js via React Three Fiber
 * Dynamic cylinder geometry updates as paper unrolls
 * Realistic paper tail with physics constraints
 
-### 2️⃣ Physics Simulation
+### Physics Simulation
 
 * Powered by Rapier physics
 * Inertia while dragging
 * Paper interacts with the ground plane
 
-### 3️⃣ Measurement Logic
+### Measurement Logic
 
 * Converts unrolled arc length to real-world centimeters
 * Roll radius updates dynamically
 * Tracks remaining paper accurately
 
-### 4️⃣ Thermal Printer Integration
+### Thermal Printer Integration
 
 * Sends raw ESC/POS byte commands
 * Communicates via Node TCP socket
@@ -66,7 +64,7 @@ It escalated.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 * Next.js 16
 * React 19
@@ -79,7 +77,7 @@ It escalated.
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 ### 1. Install
 
@@ -113,7 +111,7 @@ http://localhost:3000
 
 ---
 
-## 🖨 Printer Support
+## Printer Support
 
 There are two modes:
 
@@ -176,7 +174,7 @@ Now the app can send raw ESC/POS commands to your network printer.
 
 ---
 
-## 📸 Social Images
+## Social Images
 
 Generate Open Graph images:
 
@@ -188,45 +186,19 @@ Uses `public/logo.jpg` as base.
 
 ---
 
-## 🌍 SEO & AI Discoverability
+## SEO and AI Discoverability
 
-This project includes:
-
-* Proper metadata
-* Open Graph tags
-* Twitter cards
-* Dynamic OG image generation
-* Sitemap.xml
-* Robots.txt
-
-Target keywords:
-
-* Three.js physics demo
-* WebGL printer integration
-* ESC/POS Node example
-* Thermal printer from browser
-* React Three Fiber physics
-* Interactive 3D demo with hardware
+This project includes proper metadata, Open Graph tags, Twitter cards, dynamic OG image generation, sitemap.xml, and robots.txt.
 
 ---
 
-## 🎯 Why This Exists
+## Why This Exists
 
-Because combining:
-
-* WebGL
-* Physics
-* Geometry math
-* Real hardware printing
-
-into a toilet paper simulator
-is objectively unnecessary.
-
-And therefore necessary.
+Because combining WebGL, physics, geometry math, and real hardware printing into a toilet paper simulator is objectively unnecessary. And therefore necessary.
 
 ---
 
-## 📜 Commit Convention
+## Commit Convention
 
 This project follows Conventional Commits.
 
@@ -246,17 +218,11 @@ feat(printer)!: change escpos command structure
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### Static Hosting
 
-Upload the `/out` folder to:
-
-* GitHub Pages
-* Cloudflare Pages
-* Any FTP host
-
----
+Upload the `/out` folder to GitHub Pages, Cloudflare Pages, or any static host.
 
 ### Vercel
 
@@ -264,6 +230,18 @@ Works out of the box with default Next.js settings.
 
 ---
 
-## 📄 License
+## Author
+
+**Sander de Snaijer** -- Frontend Developer
+
+* [Portfolio](https://www.sanderdesnaijer.com/)
+* [This project on sanderdesnaijer.com](https://www.sanderdesnaijer.com/projects/3d-toilet-paper-roll-simulator-with-real-thermal-printing)
+* [GitHub](https://github.com/sanderdesnaijer)
+* [X / Twitter](https://x.com/sanderdesnaijer)
+* [LinkedIn](https://www.linkedin.com/in/sanderdesnaijer)
+
+---
+
+## License
 
 MIT — do whatever you want, just don’t blame me if you print too much paper.
