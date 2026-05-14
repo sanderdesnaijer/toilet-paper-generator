@@ -587,6 +587,7 @@ export default function HomePage() {
           <li>Network-based hardware integration</li>
           <li>Raw ESC/POS command generation</li>
         </ul>
+
         <p className="mt-3 text-sm leading-6">
           It&apos;s playful on the surface, but technically it demonstrates a
           full browser → server → printer workflow.
