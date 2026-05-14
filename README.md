@@ -36,7 +36,7 @@ It escalated.
 
 ---
 
-## 🧠 How It Works
+## Technical Details
 
 ### 3D Roll Rendering
 
@@ -232,10 +232,11 @@ Works out of the box with default Next.js settings.
 
 ## Author
 
-**Sander de Snaijer** -- Frontend Developer
+**Sander de Snaijer** / Frontend Developer
 
 * [Portfolio](https://www.sanderdesnaijer.com/)
 * [This project on sanderdesnaijer.com](https://www.sanderdesnaijer.com/projects/3d-toilet-paper-roll-simulator-with-real-thermal-printing)
+* [More demos](https://demos.sanderdesnaijer.com)
 * [GitHub](https://github.com/sanderdesnaijer)
 * [X / Twitter](https://x.com/sanderdesnaijer)
 * [LinkedIn](https://www.linkedin.com/in/sanderdesnaijer)

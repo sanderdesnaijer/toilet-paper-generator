@@ -122,6 +122,42 @@ export default function RootLayout({
         />
         <SettingsProvider>
           <main>{children}</main>
+          <footer className="py-8 border-t border-white/5 text-center bg-neutral-950">
+            <div className="flex flex-wrap justify-center gap-6 text-xs text-neutral-400">
+              <a
+                href="https://sanderdesnaijer.com/projects/3d-toilet-paper-roll-simulator-with-real-thermal-printing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Project
+              </a>
+              <a
+                href="https://github.com/sanderdesnaijer/toilet-paper-generator"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                GitHub
+              </a>
+              <a
+                href="https://demos.sanderdesnaijer.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                More demos
+              </a>
+              <a
+                href="https://sanderdesnaijer.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                sanderdesnaijer.com
+              </a>
+            </div>
+          </footer>
         </SettingsProvider>
       </body>
     </html>
